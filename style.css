@@ -3,9 +3,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light only;
+  /*color: rgba(255, 255, 255, 0.87);*/
+  /*background-color: #242424;*/
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -22,45 +22,10 @@ a:hover {
   color: #535bf2;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
 
 button {
@@ -70,7 +35,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  /*background-color: #1a1a1a;*/
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -90,7 +55,225 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
+/*  button {
     background-color: #f9f9f9;
-  }
+  }*/
 }
+
+
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Make the container at least as tall as the viewport */
+}
+
+/* Button Panel */
+
+.button-panel {
+    display: flex;
+    padding: 5px; /* Adjust based on your design */
+    /*border: 2px solid #000000;*/
+}
+
+.button-panel button {
+    margin: 5px;
+}
+
+/* Top Panel */
+
+.top-panel {
+    display: flex;
+}
+
+#nav_panel {
+    justify-content: flex-start; /* Justify nav buttons to the left */
+    flex-grow: 1;
+}
+
+#view_panel {
+    justify-content: flex-end; /* Justify view buttons to the right */
+    flex-grow: 1;
+}
+
+/* Middle Panel */
+
+.middle-panel {
+    display: flex;
+    /*max-height: 80vh;*/
+    height: 80vh;
+}
+
+.middle-left-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 300px;
+}
+
+.middle-right-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-grow: 1;
+}
+
+#file_panel, #tool_panel {
+    display: flex;
+    flex-direction: column;
+    /*flex-grow: 1;*/
+    height: 50%;
+    /*overflow-y: auto;*/
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent word wrapping in the container */
+}
+
+#file_content, #vol_tools, #mip_tools, #t3d_tools {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+#file_content li {
+    display: table-row;
+}
+
+#file_content li:before {
+    content: none;
+}
+
+#file_content li div {
+    display: table-cell;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+
+
+#table_header {
+    display: table;
+    width: 100%;
+    background-color: #f2f2f2;
+    text-align: center; /* Center the content vertically */
+    vertical-align: middle; /* Center the content vertically */
+    /*height: 50px;*/
+    flex-shrink: 0;
+}
+
+.header_cell {
+    display: table-cell;
+    padding: 5px;
+    font-weight: bold;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+
+#vol_content, #mip_content, #t3d_content {
+    flex-grow: 1;
+    margin-right: 10px;
+    /*overflow-y: auto;*/ /* For scrolling */
+}
+#mark_panel {
+    flex-grow: 0;
+}
+
+
+
+/*#table_header, #file_panel {
+    flex: 1;*/ /* This makes table_header and file_panel share the upper half equally */
+    /*overflow-y: auto;*/ /* Enables vertical scrolling if the content overflows */
+/*}
+
+#file_panel {
+    display: table;*/
+    /*flex-grow: 1;*/ /* Split space evenly */
+    /*overflow-y: auto;*/ /* Add scroll bar if content overflows */
+    /*overflow-x: auto;*/ /* Add scroll bar if content overflows */
+    /*align-items: center;*/ /* Center the content vertically */
+    /*justify-content: center;*/ /* Center the content horizontally */
+    /*border: 2px solid #000000;*/
+    /*width: 100%;*/ /* Optional: Adjust width as needed */
+/*}
+
+#file_panel li {
+    display: table-row;*/ /* Each list item is a row in the table */
+/*}
+
+#file_panel li:before {
+    content: none;*/ /* Remove the bullet points from list items */
+/*}
+
+#file_panel li div {
+    display: table-cell;*/ /* Treat child divs of list items as table cells */
+    /*padding: 10px;*/ /* Adjust padding for spacing */
+    /*border-bottom: 1px solid #ddd;*/ /* Optional: add a border for each row */
+/*}
+
+#table_header {
+    display: table;
+    width: 100%;
+    background-color: #f2f2f2;*/ /* Light grey background or any color of your choice */
+    /*text-align: center;*/ /* Center the content vertically */
+    /*vertical-align: middle;*/ /* Center the content vertically */
+    /*justify-content: center;*/ /* Center the content horizontally */
+    /*height: 50px;
+}
+
+.header_cell {
+    display: table-cell;
+    padding: 5px;
+    font-weight: bold;*/ /* Make header text bold */
+    /*border-bottom: 2px solid #000;*/ /* Optional: Add a bottom border to the header */
+    /*border-top: 2px solid #000;*/ /* Optional: Add a bottom border to the header */
+/*}
+
+
+
+
+#vol_tools, #mip_tools, #t3d_tools {
+    display: block;*/
+    /*flex-grow: 1;*/ /* Split space evenly */
+    /*flex: 1;
+    overflow-y: auto;*/ /* Add scroll bar if content overflows */
+    /*align-items: center;*/ /* Center the content vertically */
+    /*justify-content: center;*/ /* Center the content horizontally */
+    /*border: 2px solid #000000;*/
+/*}*/
+
+
+
+/*#viz_panel {
+    flex-grow: 1;
+}*/
+
+/*#vol_content, #mip_content, #t3d_content {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+#mark_panel {
+    flex-shrink: 0;
+}*/
+
+
+
+/* Bottom Panel */
+
+.bottom-panel {
+    display: flex;
+    padding: 20px;
+}
+
+/*#info_panel {*/
+    /*width: 100%;*/
+    /*margin: 20px;*/
+    /*margin-top: -10px;*/
+/*}*/
+

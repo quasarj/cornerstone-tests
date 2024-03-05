@@ -3,6 +3,7 @@ import { volumeLoader, utilities } from '@cornerstonejs/core';
 import {
     addTool,
     BidirectionalTool,
+    BrushTool,
     RectangleROITool,
     RectangleScissorsTool,
     PanTool,
@@ -16,6 +17,7 @@ import {
     annotation as csAnnotations,
     utilities as csUtilities,
     segmentation,
+    SegmentationDisplayTool,
 } from '@cornerstonejs/tools';
 import dicomParser from 'dicom-parser';
 import { api } from 'dicomweb-client';
@@ -26,14 +28,23 @@ import {
     cornerstoneStreamingDynamicImageVolumeLoader,
 } from '@cornerstonejs/streaming-image-volume-loader';
 
+let X;
+let Y;
+let Z;
+
+
 async function runFunction() {
     await cornerstone.init();
     initCornerstoneDICOMImageLoader();
     initVolumeLoader();
     await csToolsInit();
 
+
+    const series_instance_uid = getSeriesFromURL();
+
     // get demo imageIds
-    const imageIds = getTestImageIds();
+    // const imageIds = getTestImageIds();
+    const imageIds = await getFilesForSeries(series_instance_uid);
 
     const content = document.getElementById('content');
 
@@ -121,6 +132,8 @@ async function runFunction() {
     addTool(PanTool);
     addTool(ZoomTool);
     addTool(TrackballRotateTool);
+    addTool(SegmentationDisplayTool);
+    // addTool(BrushTool);
 
     const toolGroupId = 'myToolGroup';
     const toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
@@ -132,12 +145,18 @@ async function runFunction() {
     toolGroup.addTool(RectangleScissorsTool.toolName);
     toolGroup.addTool(PanTool.toolName);
     toolGroup.addTool(ZoomTool.toolName);
+    toolGroup.addTool(SegmentationDisplayTool.toolName);
+    // toolGroup.addToolInstance('SphereBrush', BrushTool.toolName, {
+    //     activeStrategy: 'FILL_INSIDE_SPHERE',
+    // });
+    toolGroup.setToolEnabled(SegmentationDisplayTool.toolName);
 
     toolGroup.addViewport(viewportId1, renderingEngineId);
     toolGroup.addViewport(viewportId2, renderingEngineId);
     // toolGroup.addViewport(viewportId3, renderingEngineId);
 
     toolGroup.setToolActive(RectangleScissorsTool.toolName, {
+    // toolGroup.setToolActive('SphereBrush', {
         bindings: [
             {
                 mouseButton: csToolsEnums.MouseBindings.Primary,
@@ -167,8 +186,13 @@ async function runFunction() {
 
     const toolGroupId2 = 'my3dToolGroup';
     const toolGroup2 = ToolGroupManager.createToolGroup(toolGroupId2);
+
     toolGroup2.addTool(TrackballRotateTool.toolName);
+    toolGroup2.addTool(SegmentationDisplayTool.toolName);
+    toolGroup2.setToolEnabled(SegmentationDisplayTool.toolName);
+
     toolGroup2.addViewport(viewportId3, renderingEngineId);
+
     toolGroup2.setToolActive(TrackballRotateTool.toolName, {
         bindings: [
             {
@@ -218,27 +242,37 @@ async function runFunction() {
     const newSegmentationId = 'newseg1';
 
     // --- segmentation stuff? ---
-    // segmentation.addSegmentations([
-    //   {
-    //     segmentationId: newSegmentationId,
-    //     representation: {
-    //       type: csToolsEnums.SegmentationRepresentations.Labelmap,
-    //       data: {
-    //         imageIdReferenceMap: new Map([['currentid', 'newid']]),
-    //       },
-    //     },
-    //   },
-    // ]);
+    // I think we need to add a "segmentation" object so the scissor tool
+    // has somehwere to store the result?
+    //
+    //
 
-    // const uid = await segmentation.addSegmentationRepresentations(
-    //   toolGroupId,
-    //   [
-    //     {
-    //       segmentationId: newSegmentationId,
-    //       type: csToolsEnums.SegmentationRepresentations.Labelmap,
-    //     },
-    //   ]
-    // );
+    await volumeLoader.createAndCacheDerivedSegmentationVolume(volumeId, {
+        volumeId: newSegmentationId,
+    });
+
+    segmentation.addSegmentations([
+      {
+        segmentationId: newSegmentationId,
+        representation: {
+          type: csToolsEnums.SegmentationRepresentations.Labelmap,
+          data: {
+            // imageIdReferenceMap: new Map([['currentid', 'newid']]),
+            volumeId: newSegmentationId,
+          },
+        },
+      },
+    ]);
+
+    await segmentation.addSegmentationRepresentations(
+      toolGroupId,
+      [
+        {
+          segmentationId: newSegmentationId,
+          type: csToolsEnums.SegmentationRepresentations.Labelmap,
+        },
+      ]
+    );
 
 
     // Render the image
@@ -247,7 +281,140 @@ async function runFunction() {
     console.log(csAnnotations);
     window.annotation = csAnnotations;
     window.element1 = element1;
-    window.qtest = function() {
+    window.qdims = function() {
+        // Extracting the coordinates of the corners of the top face
+        const topLeft = [X.min, Y.min, Z.max];
+        const topRight = [X.max, Y.min, Z.max];
+        const bottomLeft = [X.min, Y.max, Z.max];
+        const bottomRight = [X.max, Y.max, Z.max];
+
+        const topFaceCorners = [topLeft, topRight, bottomLeft, bottomRight];
+
+        console.log("Coordinates of the corners of the top face:", topFaceCorners);
+
+        // Calculate the center point
+        const centerX = (topLeft[0] + topRight[0] + bottomLeft[0] + bottomRight[0]) / 4;
+        const centerY = (topLeft[1] + topRight[1] + bottomLeft[1] + bottomRight[1]) / 4;
+        const centerZ = (topLeft[2] + topRight[2] + bottomLeft[2] + bottomRight[2]) / 4;
+
+        const centerPoint = [centerX, centerY, centerZ];
+
+        console.log("Center point of the top face:", centerPoint);
+
+        function calculateDistance(point1, point2) {
+            const dx = point2[0] - point1[0];
+            const dy = point2[1] - point1[1];
+            const dz = point2[2] - point1[2];
+
+            const distance = Math.sqrt(dx ** 2 + dy ** 2 + dz ** 2);
+
+            return distance;
+        }
+
+        // now measure the distance between each corner and the center point
+        // the longest one will be the circle radius
+        topFaceCorners.forEach((point) => {
+            console.log(calculateDistance(point, centerPoint));
+        });
+    }
+    window.qreset = async function() {
+        const segmentationVolume = cornerstone.cache.getVolume(newSegmentationId);
+        const scalarData = segmentationVolume.scalarData;
+        scalarData.fill(0); // set entire array to 0s
+
+        // Let the system know the seg data has been modified
+        segmentation.triggerSegmentationEvents.triggerSegmentationDataModified(newSegmentationId);
+    }
+    window.qtest = async function() {
+        const segmentationVolume = cornerstone.cache.getVolume(newSegmentationId);
+        const scalarData = segmentationVolume.scalarData;
+        console.log(segmentationVolume.dimensions);
+        const dims = segmentationVolume.dimensions;
+
+        const z_size = dims[2];
+        const y_size = dims[1];
+        const x_size = dims[0];
+
+        let xmin = z_size * y_size * x_size;
+        let xmax = 0;
+        let ymin = xmin;
+        let ymax = 0;
+        let zmin = xmin;
+        let zmax = 0;
+
+        for (let z = 0; z < z_size; z++) {
+            for (let y = 0; y < y_size; y++) {
+                for (let x = 0; x < x_size; x++) {
+                    // offset into the array
+                    let offset = (z * x_size * y_size) + (y * x_size) + x;
+
+                    if (scalarData[offset] > 0) {
+                        // console.log(x, y, z);
+                        if (x < xmin) { xmin = x; }
+                        if (x > xmax) { xmax = x; }
+                        if (y < ymin) { ymin = y; }
+                        if (y > ymax) { ymax = y; }
+                        if (z < zmin) { zmin = z; }
+                        if (z > zmax) { zmax = z; }
+                    }
+                }
+            }
+        }
+
+        // These would be the points that bound the volume
+        // console.log("x", xmin, xmax);
+        // console.log("y", ymin, ymax);
+        // console.log("z", zmin, zmax);
+
+        X = { min: xmin, max: xmax };
+        Y = { min: ymin, max: ymax };
+        Z = { min: zmin, max: zmax };
+
+        console.log(X);
+        console.log(Y);
+        console.log(Z);
+
+        for (let z = 0; z < z_size; z++) {
+            for (let y = 0; y < y_size; y++) {
+                for (let x = 0; x < x_size; x++) {
+                    // offset into the array
+                    let offset = (z * x_size * y_size) + (y * x_size) + x;
+                    if (
+                        x >= xmin &&
+                        x <= xmax &&
+                        y >= ymin &&
+                        y <= ymax &&
+                        z >= zmin &&
+                        z <= zmax
+                    ) {
+                        scalarData[offset] = 2;
+                    } else {
+                        scalarData[offset] = 0;
+                    }
+                }
+            }
+        }
+
+        // Let the system know the seg data has been modified
+        segmentation.triggerSegmentationEvents.triggerSegmentationDataModified(newSegmentationId);
+
+
+
+    }
+    window.q3d = async function() {
+        await segmentation.addSegmentationRepresentations(toolGroupId2, [
+            {
+                segmentationId: newSegmentationId,
+                type: csToolsEnums.SegmentationRepresentations.Surface,
+                options: {
+                    polySeg: {
+                        enabled: true,
+                    },
+                },
+            },
+        ]);
+    }
+    window.qtest_old = function() {
         const manager = csAnnotations.state.getAnnotationManager();
 
         console.log(manager.getNumberOfAllAnnotations());
@@ -284,6 +451,17 @@ async function runFunction() {
 
     }
 
+}
+
+function getSeriesFromURL() {
+    // Extract the series parameter from the URL in the browser
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    const series = urlParams.get('series');
+    console.log(series);
+
+    return series;
 }
 
 function initVolumeLoader() {
@@ -333,6 +511,25 @@ function initCornerstoneDICOMImageLoader() {
   cornerstoneDICOMImageLoader.webWorkerManager.initialize(config);
 }
 
+async function getFilesForSeries(series) {
+    console.log("getFilesForSeries");
+    console.log(series);
+    const response = await fetch(`/papi/v1/series/${series}/files`);
+    const files = await response.json();
+    // console.log(files.file_ids);
+
+    // files.file_ids.forEach((fileid) => {
+    //     console.log(fileid);
+    // });
+
+    const newfiles = files.file_ids.map((file_id) => {
+        return "wadouri:/papi/v1/files/" + file_id + "/data";
+    });
+
+    return newfiles;
+}
+
+// These are all just test functions for loading local images. Probably ignore 
 function getTestImageIds() {//{{{
     return [
         'wadouri:/dicom3/1-001.dcm',
