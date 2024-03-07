@@ -274,6 +274,22 @@ async function runFunction() {
       ]
     );
 
+    await segmentation.addSegmentationRepresentations(
+      toolGroupId2,
+      [
+        {
+          segmentationId: newSegmentationId,
+          type: csToolsEnums.SegmentationRepresentations.Labelmap,
+          // type: csToolsEnums.SegmentationRepresentations.Surface,
+          // options: {
+          //     polySeg: {
+          //         enabled: true,
+          //     }
+          // }
+        },
+      ]
+    );
+
 
     // Render the image
     renderingEngine.renderViewports([viewportId1, viewportId2]);
@@ -311,11 +327,53 @@ async function runFunction() {
             return distance;
         }
 
-        // now measure the distance between each corner and the center point
-        // the longest one will be the circle radius
-        topFaceCorners.forEach((point) => {
-            console.log(calculateDistance(point, centerPoint));
-        });
+        const radius = calculateDistance(topFaceCorners[0], centerPoint);
+        const height = Z.max - Z.min;
+
+        // const topLeft = [X.min, Y.min, Z.max];
+        // const topRight = [X.max, Y.min, Z.max];
+        // const bottomLeft = [X.min, Y.max, Z.max];
+        // const bottomRight = [X.max, Y.max, Z.max];
+
+        // output info
+        document.getElementById("output").innerHTML = `
+        <h3>Redaction input (black box)</h3>
+        <table>
+        <tr>
+            <td>Top left</td>
+            <td>${topLeft}</td>
+        </tr>
+        <tr>
+            <td>Top right</td>
+            <td>${topRight}</td>
+        </tr>
+        <tr>
+            <td>Bottom Left</td>
+            <td>${bottomLeft}</td>
+        </tr>
+        <tr>
+            <td>Bottom Right</td>
+            <td>${bottomRight}</td>
+        </tr>
+        </table>
+
+        <h3>Masker input</h3>
+        <table>
+        <tr>
+            <td>center</td>
+            <td>${centerPoint}</td>
+        </tr>
+        <tr>
+            <td>radius</td>
+            <td>${radius}</td>
+        </tr>
+        <tr>
+            <td>height</td>
+            <td>${height}</td>
+        </tr>
+        </table>
+
+        `;
     }
     window.qreset = async function() {
         const segmentationVolume = cornerstone.cache.getVolume(newSegmentationId);
@@ -370,9 +428,9 @@ async function runFunction() {
         Y = { min: ymin, max: ymax };
         Z = { min: zmin, max: zmax };
 
-        console.log(X);
-        console.log(Y);
-        console.log(Z);
+        // console.log(X);
+        // console.log(Y);
+        // console.log(Z);
 
         for (let z = 0; z < z_size; z++) {
             for (let y = 0; y < y_size; y++) {
@@ -398,6 +456,7 @@ async function runFunction() {
         // Let the system know the seg data has been modified
         segmentation.triggerSegmentationEvents.triggerSegmentationDataModified(newSegmentationId);
 
+        window.qdims();
 
 
     }
