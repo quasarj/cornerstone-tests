@@ -10,4 +10,7 @@ module.exports = {
     asyncWebAssembly: true,
     // syncWebAssembly: true,
   },
+  module: {
+    rules: [{ test: /\.wasm/, type: 'asset/resource' }]
+  },
 };

@@ -1,5 +1,5 @@
 default: node_modules
-	npm run dev
+	npx webpack
 
 node_modules:
 	npm i

@@ -274,21 +274,21 @@ async function runFunction() {
       ]
     );
 
-    await segmentation.addSegmentationRepresentations(
-      toolGroupId2,
-      [
-        {
-          segmentationId: newSegmentationId,
-          type: csToolsEnums.SegmentationRepresentations.Labelmap,
-          // type: csToolsEnums.SegmentationRepresentations.Surface,
-          // options: {
-          //     polySeg: {
-          //         enabled: true,
-          //     }
-          // }
-        },
-      ]
-    );
+    // await segmentation.addSegmentationRepresentations(
+    //   toolGroupId2,
+    //   [
+    //     {
+    //       segmentationId: newSegmentationId,
+    //       type: csToolsEnums.SegmentationRepresentations.Labelmap,
+    //       // type: csToolsEnums.SegmentationRepresentations.Surface,
+    //       // options: {
+    //       //     polySeg: {
+    //       //         enabled: true,
+    //       //     }
+    //       // }
+    //     },
+    //   ]
+    // );
 
 
     // Render the image
@@ -458,6 +458,17 @@ async function runFunction() {
 
         window.qdims();
 
+        await segmentation.addSegmentationRepresentations(toolGroupId2, [
+            {
+                segmentationId: newSegmentationId,
+                type: csToolsEnums.SegmentationRepresentations.Surface,
+                options: {
+                    polySeg: {
+                        enabled: true,
+                    },
+                },
+            },
+        ]);
 
     }
     window.q3d = async function() {
