@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link rel="stylesheet" href="style.css" />
+    <style type="text/css">
+        div {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="demo-toolbar"></div>
+    <div id="content"></div>
+
+
+    <script type="module" src="dist/main.js"></script>
+    <!--<button id="dostuff" onclick="window.doStuff();">Change LUT</button>-->
+    <div id="buttonbar">
+        <button id="btnExpand" onclick="window.qtest();">Expand Seg</button>
+        <button id="btnRset" onclick="window.qreset();">Reset Seg</button>
+    </div>
+    <div id="output"></div>
+</body>
+</html>

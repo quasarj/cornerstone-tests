@@ -33,95 +33,19 @@ function getNiftiList() {
 // Page Elements
 // ============================= //
 
-// All page elements for organization
-let elements = {
-    FILE: {
-        CURRENT: {
-            PATH: '',
-            NAME: '',
-            INDEX: 0,
-        },
-        LIST: [],
-        ACTIVE: [],
-        VOLUME: {
-            ID: null,
-            OBJECT: null,
-            INPUT: null,
-            DIMENSIONS: null,
-            SLAB: null,
-        },
-    },
-    PAGE: {
-        RENDER: {
-            ID: 'nifti_render_engine',
-            ENGINE: null,
-        },
-    },
-    VOL: {
-        CONTENT: document.getElementById('vol_content'),
-        TOOLS: {
-            ID: 'vol_tool_group',
-            GROUP: null,
-            PANEL: document.getElementById('vol_tools'),
-            SYNC: "vol_voi_syncronizer"
-        },
-        GRID: document.createElement('div'),
-        AXIAL: {
-            ID: 'vol_axial',
-            CONTENT: document.createElement('div'),
-        },
-        SAGITTAL: {
-            ID: 'vol_sagittal',
-            CONTENT: document.createElement('div'),
-        },
-        CORONAL: {
-            ID: 'vol_coronal',
-            CONTENT: document.createElement('div'),
-        },
-    },
-    MIP: {
-        CONTENT: document.getElementById('mip_content'),
-        TOOLS: {
-            ID: 'mip_tool_group',
-            GROUP: null,
-            PANEL: document.getElementById('mip_tools'),
-            SYNC: "mip_voi_syncronizer"
-        },
-        GRID: document.createElement('div'),
-        AXIAL: {
-            ID: 'mip_axial',
-            CONTENT: document.createElement('div'),
-        },
-        SAGITTAL: {
-            ID: 'mip_sagittal',
-            CONTENT: document.createElement('div'),
-        },
-        CORONAL: {
-            ID: 'mip_coronal',
-            CONTENT: document.createElement('div'),
-        },
-    },
-    T3D: {
-        CONTENT: document.getElementById('t3d_content'),
-        TOOLS: {
-            ID: 't3d_tool_group',
-            GROUP: null,
-            PANEL: document.getElementById('t3d_tools'),
-            SYNC: "t3d_voi_syncronizer"
-        },
-        GRID: document.createElement('div'),
-        CORONAL: {
-            ID: 't3d_coronal',
-            CONTENT: document.createElement('div'),
-        },
-    },
-};
+let filePath = null;
+let fileName = null;
+let fileIndex = null;
+
+let fileList = null;
+let fileActiveList = null;
+
 
 // Adjusts the rendered size when the window size changes
 const resizeObserver = new ResizeObserver(() => {
     console.log('Size changed');
 
-    const renderingEngine = cornerstone.getRenderingEngine(elements.PAGE.RENDER.ID);
+    const renderingEngine = cornerstone.getRenderingEngine('nifti_render_engine');
 
     if (renderingEngine) {
         renderingEngine.resize(true, false);
@@ -134,28 +58,37 @@ const resizeObserver = new ResizeObserver(() => {
 
 function setupVolPanel() {
 
-    elements.VOL.CONTENT.appendChild(elements.VOL.GRID);
+    const volGrid = document.createElement('div')
+    volGrid.id = 'vol_grid';
+    const volAxialContent = document.createElement('div')
+    volAxialContent.id = 'vol_axial';
+    const volSagittalContent = document.createElement('div')
+    volSagittalContent.id = 'vol_sagittal';
+    const volCoronalContent = document.createElement('div')
+    volCoronalContent.id = 'vol_coronal';
 
-    elements.VOL.GRID.style.display = 'flex';
-    elements.VOL.GRID.style.flexDirection = 'row';
-    elements.VOL.GRID.style.width = '100%';
-    elements.VOL.GRID.style.height = '100%';
+    document.getElementById('vol_content').appendChild(volGrid);
 
-    elements.VOL.AXIAL.CONTENT.style.gridColumnStart = '1';
-    elements.VOL.AXIAL.CONTENT.style.gridRowStart = '1';
-    elements.VOL.SAGITTAL.CONTENT.style.gridColumnStart = '2';
-    elements.VOL.SAGITTAL.CONTENT.style.gridRowStart = '1';
-    elements.VOL.CORONAL.CONTENT.style.gridColumnStart = '3';
-    elements.VOL.CORONAL.CONTENT.style.gridRowStart = '1';
+    volGrid.style.display = 'flex';
+    volGrid.style.flexDirection = 'row';
+    volGrid.style.width = '100%';
+    volGrid.style.height = '100%';
 
-    elements.VOL.GRID.appendChild(elements.VOL.AXIAL.CONTENT);
-    elements.VOL.GRID.appendChild(elements.VOL.SAGITTAL.CONTENT);
-    elements.VOL.GRID.appendChild(elements.VOL.CORONAL.CONTENT);
+    volAxialContent.style.gridColumnStart = '1';
+    volAxialContent.style.gridRowStart = '1';
+    volSagittalContent.style.gridColumnStart = '2';
+    volSagittalContent.style.gridRowStart = '1';
+    volCoronalContent.style.gridColumnStart = '3';
+    volCoronalContent.style.gridRowStart = '1';
+
+    volGrid.appendChild(volAxialContent);
+    volGrid.appendChild(volSagittalContent);
+    volGrid.appendChild(volCoronalContent);
 
     const elementList = [
-        elements.VOL.AXIAL.CONTENT,
-        elements.VOL.SAGITTAL.CONTENT,
-        elements.VOL.CORONAL.CONTENT,
+        volAxialContent,
+        volSagittalContent,
+        volCoronalContent,
     ];
 
     elementList.forEach((element) => {
@@ -165,32 +98,43 @@ function setupVolPanel() {
 
         resizeObserver.observe(element);
     });
+
+    return { "axial": volAxialContent, "sagittal": volSagittalContent, "coronal": volCoronalContent }
 }
 
 function setupMipPanel() {
 
-    elements.MIP.CONTENT.appendChild(elements.MIP.GRID);
+    const mipGrid = document.createElement('div')
+    mipGrid.id = 'mip_grid';
+    const mipAxialContent = document.createElement('div')
+    mipAxialContent.id = 'mip_axial';
+    const mipSagittalContent = document.createElement('div')
+    mipSagittalContent.id = 'mip_sagittal';
+    const mipCoronalContent = document.createElement('div')
+    mipCoronalContent.id = 'mip_coronal';
 
-    elements.MIP.GRID.style.display = 'flex';
-    elements.MIP.GRID.style.flexDirection = 'row';
-    elements.MIP.GRID.style.width = '100%';
-    elements.MIP.GRID.style.height = '100%';
+    document.getElementById('mip_content').appendChild(mipGrid);
 
-    elements.MIP.AXIAL.CONTENT.style.gridColumnStart = '1';
-    elements.MIP.AXIAL.CONTENT.style.gridRowStart = '1';
-    elements.MIP.SAGITTAL.CONTENT.style.gridColumnStart = '2';
-    elements.MIP.SAGITTAL.CONTENT.style.gridRowStart = '1';
-    elements.MIP.CORONAL.CONTENT.style.gridColumnStart = '3';
-    elements.MIP.CORONAL.CONTENT.style.gridRowStart = '1';
+    mipGrid.style.display = 'flex';
+    mipGrid.style.flexDirection = 'row';
+    mipGrid.style.width = '100%';
+    mipGrid.style.height = '100%';
 
-    elements.MIP.GRID.appendChild(elements.MIP.AXIAL.CONTENT);
-    elements.MIP.GRID.appendChild(elements.MIP.SAGITTAL.CONTENT);
-    elements.MIP.GRID.appendChild(elements.MIP.CORONAL.CONTENT);
+    mipAxialContent.style.gridColumnStart = '1';
+    mipAxialContent.style.gridRowStart = '1';
+    mipSagittalContent.style.gridColumnStart = '2';
+    mipSagittalContent.style.gridRowStart = '1';
+    mipCoronalContent.style.gridColumnStart = '3';
+    mipCoronalContent.style.gridRowStart = '1';
+
+    mipGrid.appendChild(mipAxialContent);
+    mipGrid.appendChild(mipSagittalContent);
+    mipGrid.appendChild(mipCoronalContent);
 
     const elementList = [
-        elements.MIP.AXIAL.CONTENT,
-        elements.MIP.SAGITTAL.CONTENT,
-        elements.MIP.CORONAL.CONTENT,
+        mipAxialContent,
+        mipSagittalContent,
+        mipCoronalContent,
     ];
 
     elementList.forEach((element) => {
@@ -200,27 +144,36 @@ function setupMipPanel() {
 
         resizeObserver.observe(element);
     });
+
+    return { "axial": mipAxialContent, "sagittal": mipSagittalContent, "coronal": mipCoronalContent }
 }
 
 function setup3dPanel() {
 
-    elements.T3D.CONTENT.appendChild(elements.T3D.GRID);
+    const t3dGrid = document.createElement('div')
+    t3dGrid.id = 't3d_grid';
+    const t3dCoronalContent = document.createElement('div')
+    t3dCoronalContent.id = 't3d_coronal';
 
-    elements.T3D.GRID.style.display = 'flex';
-    elements.T3D.GRID.style.flexDirection = 'row';
-    elements.T3D.GRID.style.width = '100%';
-    elements.T3D.GRID.style.height = '100%';
+    document.getElementById('t3d_content').appendChild(t3dGrid);
 
-    elements.T3D.CORONAL.CONTENT.style.gridColumnStart = '1';
-    elements.T3D.CORONAL.CONTENT.style.gridRowStart = '1';
+    t3dGrid.style.display = 'flex';
+    t3dGrid.style.flexDirection = 'row';
+    t3dGrid.style.width = '100%';
+    t3dGrid.style.height = '100%';
 
-    elements.T3D.GRID.appendChild(elements.T3D.CORONAL.CONTENT);
+    t3dCoronalContent.style.gridColumnStart = '1';
+    t3dCoronalContent.style.gridRowStart = '1';
 
-    elements.T3D.CORONAL.CONTENT.style.width = '100%';
-    elements.T3D.CORONAL.CONTENT.style.height = '100%';
-    elements.T3D.CORONAL.CONTENT.oncontextmenu = (e) => e.preventDefault();
+    t3dGrid.appendChild(t3dCoronalContent);
 
-    resizeObserver.observe(elements.T3D.CORONAL.CONTENT);
+    t3dCoronalContent.style.width = '100%';
+    t3dCoronalContent.style.height = '100%';
+    t3dCoronalContent.oncontextmenu = (e) => e.preventDefault();
+
+    resizeObserver.observe(t3dCoronalContent);
+
+    return { "coronal": t3dCoronalContent }
 }
 
 function setupTools() {
@@ -243,27 +196,27 @@ function setupTools() {
 function setupVolTools() {
 
     const viewportColors = {
-        [elements.VOL.AXIAL.ID]: 'rgb(200, 0, 0)',
-        [elements.VOL.SAGITTAL.ID]: 'rgb(200, 200, 0)',
-        [elements.VOL.CORONAL.ID]: 'rgb(0, 200, 0)',
+        ['vol_axial']: 'rgb(200, 0, 0)',
+        ['vol_sagittal']: 'rgb(200, 200, 0)',
+        ['vol_coronal']: 'rgb(0, 200, 0)',
     };
 
     const viewportReferenceLineControllable = [
-        elements.VOL.AXIAL.ID,
-        elements.VOL.SAGITTAL.ID,
-        elements.VOL.CORONAL.ID,
+        'vol_axial',
+        'vol_sagittal',
+        'vol_coronal',
     ];
 
     const viewportReferenceLineDraggableRotatable = [
-        elements.VOL.AXIAL.ID,
-        elements.VOL.SAGITTAL.ID,
-        elements.VOL.CORONAL.ID,
+        'vol_axial',
+        'vol_sagittal',
+        'vol_coronal',
     ];
 
     const viewportReferenceLineSlabThicknessControlsOn = [
-        elements.VOL.AXIAL.ID,
-        elements.VOL.SAGITTAL.ID,
-        elements.VOL.CORONAL.ID,
+        'vol_axial',
+        'vol_sagittal',
+        'vol_coronal',
     ];
 
     function getReferenceLineColor(viewportId) {
@@ -287,23 +240,22 @@ function setupVolTools() {
     }
 
     // Tool group setup
-    elements.VOL.TOOLS.GROUP = cornerstoneTools.ToolGroupManager.createToolGroup(elements.VOL.TOOLS.ID);
-    //const volToolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(elements.VOL.TOOLS.ID);
-    elements.VOL.TOOLS.GROUP.addViewport(elements.VOL.AXIAL.ID, elements.PAGE.RENDER.ID);
-    elements.VOL.TOOLS.GROUP.addViewport(elements.VOL.SAGITTAL.ID, elements.PAGE.RENDER.ID);
-    elements.VOL.TOOLS.GROUP.addViewport(elements.VOL.CORONAL.ID, elements.PAGE.RENDER.ID);
+    const volToolGroup = cornerstoneTools.ToolGroupManager.createToolGroup('vol_tool_group');
+    volToolGroup.addViewport('vol_axial', 'nifti_render_engine');
+    volToolGroup.addViewport('vol_sagittal', 'nifti_render_engine');
+    volToolGroup.addViewport('vol_coronal', 'nifti_render_engine');
 
     // Scroll Mouse Wheel
-    elements.VOL.TOOLS.GROUP.addTool(cornerstoneTools.StackScrollMouseWheelTool.toolName);
-    elements.VOL.TOOLS.GROUP.setToolActive(cornerstoneTools.StackScrollMouseWheelTool.toolName);
+    volToolGroup.addTool(cornerstoneTools.StackScrollMouseWheelTool.toolName);
+    volToolGroup.setToolActive(cornerstoneTools.StackScrollMouseWheelTool.toolName);
 
     // Segmentation Display
-    elements.VOL.TOOLS.GROUP.addTool(cornerstoneTools.SegmentationDisplayTool.toolName);
-    elements.VOL.TOOLS.GROUP.setToolEnabled(cornerstoneTools.SegmentationDisplayTool.toolName);
+    volToolGroup.addTool(cornerstoneTools.SegmentationDisplayTool.toolName);
+    volToolGroup.setToolEnabled(cornerstoneTools.SegmentationDisplayTool.toolName);
 
     // Window Level
-    elements.VOL.TOOLS.GROUP.addTool(cornerstoneTools.WindowLevelTool.toolName);
-    elements.VOL.TOOLS.GROUP.setToolActive(cornerstoneTools.WindowLevelTool.toolName, {
+    volToolGroup.addTool(cornerstoneTools.WindowLevelTool.toolName);
+    volToolGroup.setToolActive(cornerstoneTools.WindowLevelTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Primary, // Left Click
@@ -312,8 +264,8 @@ function setupVolTools() {
     });
 
     // Pan
-    elements.VOL.TOOLS.GROUP.addTool(cornerstoneTools.PanTool.toolName);
-    elements.VOL.TOOLS.GROUP.setToolActive(cornerstoneTools.PanTool.toolName, {
+    volToolGroup.addTool(cornerstoneTools.PanTool.toolName);
+    volToolGroup.setToolActive(cornerstoneTools.PanTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Auxiliary, // Middle Click
@@ -322,8 +274,8 @@ function setupVolTools() {
     });
 
     // Zoom
-    elements.VOL.TOOLS.GROUP.addTool(cornerstoneTools.ZoomTool.toolName);
-    elements.VOL.TOOLS.GROUP.setToolActive(cornerstoneTools.ZoomTool.toolName, {
+    volToolGroup.addTool(cornerstoneTools.ZoomTool.toolName);
+    volToolGroup.setToolActive(cornerstoneTools.ZoomTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Secondary, // Right Click
@@ -332,33 +284,35 @@ function setupVolTools() {
     });
 
     // Crosshairs
-    elements.VOL.TOOLS.GROUP.addTool(cornerstoneTools.CrosshairsTool.toolName, {
+    volToolGroup.addTool(cornerstoneTools.CrosshairsTool.toolName, {
         getReferenceLineColor,
         getReferenceLineControllable,
         getReferenceLineDraggableRotatable,
         getReferenceLineSlabThicknessControlsOn,
     });
-    //elements.VOL.TOOLS.GROUP.setToolPassive(cornerstoneTools.CrosshairsTool.toolName);
-    //elements.VOL.TOOLS.GROUP.setToolEnabled(cornerstoneTools.CrosshairsTool.toolName);
+    //volToolGroup.setToolPassive(cornerstoneTools.CrosshairsTool.toolName);
+    //volToolGroup.setToolEnabled(cornerstoneTools.CrosshairsTool.toolName);
 
-    const volVOISyncronizer = cornerstoneTools.synchronizers.createVOISynchronizer(elements.VOL.TOOLS.SYNC);
+    const volVOISyncronizer = cornerstoneTools.synchronizers.createVOISynchronizer("vol_voi_syncronizer");
 
-    [elements.VOL.AXIAL.ID, elements.VOL.SAGITTAL.ID, elements.VOL.CORONAL.ID].forEach((viewport) => {
-        volVOISyncronizer.add({ renderingEngineId: elements.PAGE.RENDER.ID, viewportId: viewport });
+    ['vol_axial', 'vol_sagittal', 'vol_coronal'].forEach((viewport) => {
+        volVOISyncronizer.add({ renderingEngineId: 'nifti_render_engine', viewportId: viewport });
     });
 
-    const tool_panel = elements.VOL.TOOLS.PANEL;
+    const tool_panel = document.getElementById('vol_tools');
 
-    const viewport = elements.PAGE.RENDER.ENGINE.getViewport(elements.VOL.AXIAL.ID);
+    const renderingEngine = cornerstone.getRenderingEngine('nifti_render_engine');
+
+    const viewport = renderingEngine.getViewport('vol_axial');
     addButtonToToolbar({
         id: 'vol_reset_button',
         container: tool_panel,
         title: 'Reset Viewports',
         onClick: () => {
-            elements.PAGE.RENDER.ENGINE.getViewports().forEach((viewport) => {
+            renderingEngine.getViewports().forEach((viewport) => {
                 viewport.resetCamera(true, true, true, true);
             });
-            elements.PAGE.RENDER.ENGINE.render();
+            renderingEngine.render();
         },
     });
 
@@ -370,11 +324,13 @@ function setupVolTools() {
         onClick: async (toggle) => {
             const set_active = toggle;
 
+            const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup('vol_tool_group');
+
             if (set_active) {
-                elements.VOL.TOOLS.GROUP.setToolPassive(cornerstoneTools.CrosshairsTool.toolName);
+                toolGroup.setToolPassive(cornerstoneTools.CrosshairsTool.toolName);
             }
             else {
-                elements.VOL.TOOLS.GROUP.setToolDisabled(cornerstoneTools.CrosshairsTool.toolName);
+                toolGroup.setToolDisabled(cornerstoneTools.CrosshairsTool.toolName);
             }
         },
     });
@@ -384,23 +340,22 @@ function setupVolTools() {
 function setupMipTools() {
 
     // Tool group setup
-    elements.MIP.TOOLS.GROUP = cornerstoneTools.ToolGroupManager.createToolGroup(elements.MIP.TOOLS.ID);
-    //const mipToolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(elements.MIP.TOOLS.ID);
-    elements.MIP.TOOLS.GROUP.addViewport(elements.MIP.AXIAL.ID, elements.PAGE.RENDER.ID);
-    elements.MIP.TOOLS.GROUP.addViewport(elements.MIP.SAGITTAL.ID, elements.PAGE.RENDER.ID);
-    elements.MIP.TOOLS.GROUP.addViewport(elements.MIP.CORONAL.ID, elements.PAGE.RENDER.ID);
+    const mipToolGroup = cornerstoneTools.ToolGroupManager.createToolGroup('mip_tool_group');
+    mipToolGroup.addViewport('mip_axial', 'nifti_render_engine');
+    mipToolGroup.addViewport('mip_sagittal', 'nifti_render_engine');
+    mipToolGroup.addViewport('mip_coronal', 'nifti_render_engine');
 
     // Scroll Mouse Wheel
-    elements.MIP.TOOLS.GROUP.addTool(cornerstoneTools.VolumeRotateMouseWheelTool.toolName);
-    elements.MIP.TOOLS.GROUP.setToolActive(cornerstoneTools.VolumeRotateMouseWheelTool.toolName);
+    mipToolGroup.addTool(cornerstoneTools.VolumeRotateMouseWheelTool.toolName);
+    mipToolGroup.setToolActive(cornerstoneTools.VolumeRotateMouseWheelTool.toolName);
 
     // Segmentation Display
-    elements.MIP.TOOLS.GROUP.addTool(cornerstoneTools.SegmentationDisplayTool.toolName);
-    elements.MIP.TOOLS.GROUP.setToolEnabled(cornerstoneTools.SegmentationDisplayTool.toolName);
+    mipToolGroup.addTool(cornerstoneTools.SegmentationDisplayTool.toolName);
+    mipToolGroup.setToolEnabled(cornerstoneTools.SegmentationDisplayTool.toolName);
 
     // Window Level
-    elements.MIP.TOOLS.GROUP.addTool(cornerstoneTools.WindowLevelTool.toolName);
-    elements.MIP.TOOLS.GROUP.setToolActive(cornerstoneTools.WindowLevelTool.toolName, {
+    mipToolGroup.addTool(cornerstoneTools.WindowLevelTool.toolName);
+    mipToolGroup.setToolActive(cornerstoneTools.WindowLevelTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Primary, // Left Click
@@ -409,8 +364,8 @@ function setupMipTools() {
     });
 
     // Pan
-    elements.MIP.TOOLS.GROUP.addTool(cornerstoneTools.PanTool.toolName);
-    elements.MIP.TOOLS.GROUP.setToolActive(cornerstoneTools.PanTool.toolName, {
+    mipToolGroup.addTool(cornerstoneTools.PanTool.toolName);
+    mipToolGroup.setToolActive(cornerstoneTools.PanTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Auxiliary, // Middle Click
@@ -419,8 +374,8 @@ function setupMipTools() {
     });
 
     // Zoom
-    elements.MIP.TOOLS.GROUP.addTool(cornerstoneTools.ZoomTool.toolName);
-    elements.MIP.TOOLS.GROUP.setToolActive(cornerstoneTools.ZoomTool.toolName, {
+    mipToolGroup.addTool(cornerstoneTools.ZoomTool.toolName);
+    mipToolGroup.setToolActive(cornerstoneTools.ZoomTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Secondary, // Right Click
@@ -428,24 +383,26 @@ function setupMipTools() {
         ],
     });
 
-    const mipVOISyncronizer = cornerstoneTools.synchronizers.createVOISynchronizer(elements.MIP.TOOLS.SYNC);
+    const mipVOISyncronizer = cornerstoneTools.synchronizers.createVOISynchronizer("mip_voi_syncronizer");
 
-    [elements.MIP.AXIAL.ID, elements.MIP.SAGITTAL.ID, elements.MIP.CORONAL.ID].forEach((viewport) => {
-        mipVOISyncronizer.add({ renderingEngineId: elements.PAGE.RENDER.ID, viewportId: viewport });
+    ['mip_axial', 'mip_sagittal', 'mip_coronal'].forEach((viewport) => {
+        mipVOISyncronizer.add({ renderingEngineId: 'nifti_render_engine', viewportId: viewport });
     });
 
-    const tool_panel = elements.MIP.TOOLS.PANEL;
+    const tool_panel = document.getElementById('mip_tools');
+
+    const renderingEngine = cornerstone.getRenderingEngine('nifti_render_engine');
 
     addButtonToToolbar({
         id: 'mip_reset_button',
         container: tool_panel,
         title: 'Reset Viewports',
         onClick: () => {
-            elements.PAGE.RENDER.ENGINE.getViewports().forEach((viewport) => {
+            renderingEngine.getViewports().forEach((viewport) => {
                 viewport.resetCamera(true, true, true, true);
                 //viewport.reset();
             });
-            elements.PAGE.RENDER.ENGINE.render();
+            renderingEngine.render();
         },
     });
 }
@@ -453,13 +410,12 @@ function setupMipTools() {
 function setup3dTools() {
 
     // Tool group setup
-    elements.T3D.TOOLS.GROUP = cornerstoneTools.ToolGroupManager.createToolGroup(elements.T3D.TOOLS.ID);
-    //const t3dToolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(elements.T3D.TOOLS.ID);    
-    elements.T3D.TOOLS.GROUP.addViewport(elements.T3D.CORONAL.ID, elements.PAGE.RENDER.ID);
+    const t3dToolGroup = cornerstoneTools.ToolGroupManager.createToolGroup('t3d_tool_group');    
+    t3dToolGroup.addViewport('t3d_coronal', 'nifti_render_engine');
 
     // Trackball Rotate
-    elements.T3D.TOOLS.GROUP.addTool(cornerstoneTools.TrackballRotateTool.toolName);
-    elements.T3D.TOOLS.GROUP.setToolActive(cornerstoneTools.TrackballRotateTool.toolName, {
+    t3dToolGroup.addTool(cornerstoneTools.TrackballRotateTool.toolName);
+    t3dToolGroup.setToolActive(cornerstoneTools.TrackballRotateTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Primary, // Left Click
@@ -468,12 +424,12 @@ function setup3dTools() {
     });
 
     // Segmentation Display
-    elements.T3D.TOOLS.GROUP.addTool(cornerstoneTools.SegmentationDisplayTool.toolName);
-    elements.T3D.TOOLS.GROUP.setToolEnabled(cornerstoneTools.SegmentationDisplayTool.toolName);
+    t3dToolGroup.addTool(cornerstoneTools.SegmentationDisplayTool.toolName);
+    t3dToolGroup.setToolEnabled(cornerstoneTools.SegmentationDisplayTool.toolName);
 
     // Pan
-    elements.T3D.TOOLS.GROUP.addTool(cornerstoneTools.PanTool.toolName);
-    elements.T3D.TOOLS.GROUP.setToolActive(cornerstoneTools.PanTool.toolName, {
+    t3dToolGroup.addTool(cornerstoneTools.PanTool.toolName);
+    t3dToolGroup.setToolActive(cornerstoneTools.PanTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Auxiliary, // Middle Click
@@ -482,8 +438,8 @@ function setup3dTools() {
     });
 
     // Zoom
-    elements.T3D.TOOLS.GROUP.addTool(cornerstoneTools.ZoomTool.toolName);
-    elements.T3D.TOOLS.GROUP.setToolActive(cornerstoneTools.ZoomTool.toolName, {
+    t3dToolGroup.addTool(cornerstoneTools.ZoomTool.toolName);
+    t3dToolGroup.setToolActive(cornerstoneTools.ZoomTool.toolName, {
         bindings: [
             {
                 mouseButton: cornerstoneTools.Enums.MouseBindings.Secondary, // Right Click
@@ -491,20 +447,21 @@ function setup3dTools() {
         ],
     });
 
+    const renderingEngine = cornerstone.getRenderingEngine('nifti_render_engine');
 
-    const viewport = elements.PAGE.RENDER.ENGINE.getViewport(elements.T3D.CORONAL.ID);
+    const viewport = renderingEngine.getViewport('t3d_coronal');
 
-    const tool_panel = elements.T3D.TOOLS.PANEL;
+    const tool_panel = document.getElementById('t3d_tools');
 
     addButtonToToolbar({
         id: 't3d_reset_button',
         container: tool_panel,
         title: 'Reset Viewports',
         onClick: () => {
-            elements.PAGE.RENDER.ENGINE.getViewports().forEach((viewport) => {
+            renderingEngine.getViewports().forEach((viewport) => {
                 viewport.resetCamera(true, true, true, true);
             });
-            elements.PAGE.RENDER.ENGINE.render();
+            renderingEngine.render();
         },
     });
 
@@ -534,7 +491,7 @@ function setup3dTools() {
         title: 'Toggle Visibility',
         defaultToggle: true,
         onClick: async (toggle) => {
-            const viewport = elements.PAGE.RENDER.ENGINE.getViewport(elements.T3D.CORONAL.ID);
+            const viewport = renderingEngine.getViewport('t3d_coronal');
             const volumeActor = viewport.getDefaultActor().actor;
             const visibility = toggle;
             volumeActor.setVisibility(visibility);
@@ -559,7 +516,7 @@ function setup3dTools() {
             const mappedValue = Number(value) / 100.0;
             setConfigValue('fillAlphaInactive', mappedValue);
             const config = elements.FILE.OBJECT.config;
-            elements.PAGE.RENDER.ENGINE.renderViewports(elements.T3D.CORONAL.ID);
+            renderingEngine.renderViewports('t3d_coronal');
         },
     });
 
@@ -574,7 +531,7 @@ function setConfigValue(property, value) {
     config.representations.LABELMAP[property] = value;
     segmentation.config.setGlobalConfig(config);
 
-    const renderingEngine = getRenderingEngine(renderingEngineId);
+    const renderingEngine = getRenderingEngine('nifti_render_engine');
 
     renderingEngine.renderViewports([viewportId]);
 }
@@ -585,16 +542,16 @@ function setupFilePanel() {
 
     const filePanel = document.getElementById('file_content');
     filePanel.innerHTML = '';
-    elements.FILE.LIST.forEach((file, index) => {
+    fileList.forEach((file, index) => {
         const listItem = document.createElement('li');
 
         const fileNameDiv = document.createElement('div');
         const fileParts = file.split(/[/\\]/)
         fileNameDiv.textContent = fileParts.pop();
 
-        if (file === elements.FILE.CURRENT.PATH) {
+        if (file === filePath) {
             listItem.style.backgroundColor = 'MediumAquaMarine';
-            elements.FILE.CURRENT.INDEX = index
+            fileIndex = index
         }
         else {
             listItem.onclick = () => {
@@ -610,7 +567,7 @@ function setupFilePanel() {
 async function toggleFileOverlays(selectedIndex) {
 
     console.log("==============");
-    console.log(elements.FILE.ACTIVE);
+    console.log(fileActiveList);
     console.log(selectedIndex);
 
     const filePanel = document.getElementById('file_content');
@@ -618,11 +575,11 @@ async function toggleFileOverlays(selectedIndex) {
 
     let success = false;
 
-    if (elements.FILE.ACTIVE[selectedIndex]) {
+    if (fileActiveList[selectedIndex]) {
         let success = removeOverlay(selectedIndex);
         if (success) {
             selectedItem.style.backgroundColor = '';
-            elements.FILE.ACTIVE[selectedIndex] = false
+            fileActiveList[selectedIndex] = false
         }
     }
     else {
@@ -630,26 +587,26 @@ async function toggleFileOverlays(selectedIndex) {
 
         if (success) {
             selectedItem.style.backgroundColor = 'lightsalmon';
-            elements.FILE.ACTIVE[selectedIndex] = true
+            fileActiveList[selectedIndex] = true
 
-            console.log(elements.FILE.ACTIVE);
+            console.log(fileActiveList);
 
             Array.from(filePanel.children).forEach((child, index) => {
-                if (index !== selectedIndex && index !== elements.FILE.CURRENT.INDEX) {
-                    if (elements.FILE.ACTIVE[index]) {
+                if (index !== selectedIndex && index !== fileIndex) {
+                    if (fileActiveList[index]) {
                         removeOverlay(index);
                         child.style.backgroundColor = '';
-                        elements.FILE.ACTIVE[index] = false
+                        fileActiveList[index] = false
                     }
                 }
             });
         }
     }
 
-    console.log(elements.FILE.ACTIVE);
+    console.log(fileActiveList);
     console.log("==============");
 
-    const renderingEngine = cornerstone.getRenderingEngine(elements.PAGE.RENDER.ID);
+    const renderingEngine = cornerstone.getRenderingEngine('nifti_render_engine');
     renderingEngine.render();
 }
 
@@ -657,9 +614,9 @@ async function addOverlay(selectedIndex) {
 
     try {
 
-        const segmentationId = 'nifti:' + elements.FILE.LIST[selectedIndex];
+        const segmentationId = 'nifti:' + fileList[selectedIndex];
 
-        if (elements.FILE.ACTIVE[selectedIndex] === null) {
+        if (fileActiveList[selectedIndex] === null) {
             const segVolume = await cornerstone.volumeLoader.createAndCacheVolume(segmentationId, {
                 type: 'labelmap',
             });
@@ -691,16 +648,16 @@ async function addOverlay(selectedIndex) {
                 },
             },
         }
-        cornerstoneTools.segmentation.config.setToolGroupSpecificConfig(elements.VOL.TOOLS.ID, volGroupConfiguration)
+        cornerstoneTools.segmentation.config.setToolGroupSpecificConfig('vol_tool_group', volGroupConfiguration)
 
-        await cornerstoneTools.segmentation.addSegmentationRepresentations(elements.VOL.TOOLS.ID, [
+        await cornerstoneTools.segmentation.addSegmentationRepresentations('vol_tool_group', [
             {
                 segmentationId,
                 type: cornerstoneTools.Enums.SegmentationRepresentations.Labelmap,
             },
         ]);
 
-        //await cornerstoneTools.segmentation.addSegmentationRepresentations(elements.T3D.TOOLS.ID, [
+        //await cornerstoneTools.segmentation.addSegmentationRepresentations('t3d_tool_group', [
         //    {
         //        segmentationId,
         //        type: cornerstoneTools.Enums.SegmentationRepresentations.Labelmap,
@@ -720,9 +677,9 @@ async function addOverlay(selectedIndex) {
                 },
             },
         }
-        cornerstoneTools.segmentation.config.setToolGroupSpecificConfig(elements.T3D.TOOLS.ID, t3dGroupConfiguration)
+        cornerstoneTools.segmentation.config.setToolGroupSpecificConfig('t3d_tool_group', t3dGroupConfiguration)
 
-        await cornerstoneTools.segmentation.addSegmentationRepresentations(elements.T3D.TOOLS.ID, [
+        await cornerstoneTools.segmentation.addSegmentationRepresentations('t3d_tool_group', [
             {
                 segmentationId,
                 type: cornerstoneTools.Enums.SegmentationRepresentations.Surface,
@@ -745,18 +702,12 @@ async function addOverlay(selectedIndex) {
     }
 }
 
-
-
-
-
-
-
-
 async function removeOverlay(selectedIndex) {
 
     try {
-        const segmentationId = 'nifti:' + elements.FILE.LIST[selectedIndex];
-        await cornerstoneTools.segmentation.removeSegmentationsFromToolGroup(elements.VOL.TOOLS.ID)
+        const segmentationId = 'nifti:' + fileList[selectedIndex];
+        await cornerstoneTools.segmentation.removeSegmentationsFromToolGroup('vol_tool_group')
+        await cornerstoneTools.segmentation.removeSegmentationsFromToolGroup('t3d_tool_group')
         return true;
     } catch (error) {
         console.error(error);
@@ -769,13 +720,13 @@ async function removeOverlay(selectedIndex) {
 
 function getFileInfo() {
 
-    elements.FILE.CURRENT.PATH = getNiftiVolume();
-    const fileParts = elements.FILE.CURRENT.PATH.split(/[/\\]/)
-    elements.FILE.CURRENT.NAME = fileParts.pop();
+    filePath = getNiftiVolume();
+    const fileParts = filePath.split(/[/\\]/)
+    fileName = fileParts.pop();
 
-    elements.FILE.LIST = getNiftiList();
+    fileList = getNiftiList();
 
-    elements.FILE.ACTIVE = elements.FILE.LIST.map(() => null);
+    fileActiveList = fileList.map(() => null);
 }
 
 async function run() {
@@ -786,91 +737,90 @@ async function run() {
 
     setupFilePanel();
 
-    //let volumeId = 'nifti:' + elements.FILE.CURRENT.PATH;
-    elements.FILE.VOLUME.ID = 'nifti:' + elements.FILE.CURRENT.PATH;
+    //let volumeId = 'nifti:' + filePath;
+    const fileVolumeId = 'nifti:' + filePath;
 
     cornerstone.volumeLoader.registerVolumeLoader('nifti', cornerstoneNiftiImageVolumeLoader);
 
-    elements.FILE.VOLUME.OBJECT = await cornerstone.volumeLoader.createAndCacheVolume(elements.FILE.VOLUME.ID, {
+    const fileVolume = await cornerstone.volumeLoader.createAndCacheVolume(fileVolumeId, {
         type: 'image',
     });
 
-    elements.PAGE.RENDER.ENGINE = new cornerstone.RenderingEngine(elements.PAGE.RENDER.ID);
+    const renderingEngine = new cornerstone.RenderingEngine('nifti_render_engine');
 
-    setupVolPanel();
-    setupMipPanel();
-    setup3dPanel();
+    const volContent = setupVolPanel();
+    const mipContent = setupMipPanel();
+    const t3dContent = setup3dPanel();
 
-    elements.FILE.VOLUME.INPUT = [
+    const fileInputArray = [
         {
-            viewportId: elements.VOL.AXIAL.ID,
+            viewportId: 'vol_axial',
             type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-            element: elements.VOL.AXIAL.CONTENT,
+            element: volContent["axial"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.AXIAL,
             },
         },
         {
-            viewportId: elements.VOL.SAGITTAL.ID,
+            viewportId: 'vol_sagittal',
             type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-            element: elements.VOL.SAGITTAL.CONTENT,
+            element: volContent["sagittal"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.SAGITTAL,
             },
         },
         {
-            viewportId: elements.VOL.CORONAL.ID,
+            viewportId: 'vol_coronal',
             type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-            element: elements.VOL.CORONAL.CONTENT,
+            element: volContent["coronal"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.CORONAL,
             },
         },
         {
-            viewportId: elements.MIP.AXIAL.ID,
+            viewportId: 'mip_axial',
             type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-            element: elements.MIP.AXIAL.CONTENT,
+            element: mipContent["axial"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.AXIAL,
             },
         },
         {
-            viewportId: elements.MIP.SAGITTAL.ID,
+            viewportId: 'mip_sagittal',
             type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-            element: elements.MIP.SAGITTAL.CONTENT,
+            element: mipContent["sagittal"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.SAGITTAL,
             },
         },
         {
-            viewportId: elements.MIP.CORONAL.ID,
+            viewportId: 'mip_coronal',
             type: cornerstone.Enums.ViewportType.ORTHOGRAPHIC,
-            element: elements.MIP.CORONAL.CONTENT,
+            element: mipContent["coronal"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.CORONAL,
             },
         },
         {
-            viewportId: elements.T3D.CORONAL.ID,
+            viewportId: 't3d_coronal',
             type: cornerstone.Enums.ViewportType.VOLUME_3D,
-            element: elements.T3D.CORONAL.CONTENT,
+            element: t3dContent["coronal"],
             defaultOptions: {
                 orientation: cornerstone.Enums.OrientationAxis.CORONAL,
-                //background: cornerstone.CONSTANTS.BACKGROUND_COLORS.slicer3D,
             },
         },
     ];
 
-    elements.PAGE.RENDER.ENGINE.setViewports(elements.FILE.VOLUME.INPUT);
+    renderingEngine.setViewports(fileInputArray);
 
-    elements.FILE.VOLUME.OBJECT.load();
+    fileVolume.load();
 
     // Add volumes to volume viewports
     await cornerstone.setVolumesForViewports(
-        elements.PAGE.RENDER.ENGINE,
+        renderingEngine,
         [
             {
-                volumeId: elements.FILE.VOLUME.ID,
+                volumeId: fileVolumeId,
                 //callback: ({ volumeActor }) => {
                 //    volumeActor
                 //        .getProperty()
@@ -881,42 +831,42 @@ async function run() {
             }
         ],
         //viewportInputArray.map(v => v.viewportId)
-        [elements.VOL.AXIAL.ID, elements.VOL.SAGITTAL.ID, elements.VOL.CORONAL.ID]
+        ['vol_axial', 'vol_sagittal', 'vol_coronal']
     );
 
-    elements.FILE.VOLUME.DIMENSIONS = elements.FILE.VOLUME.OBJECT.dimensions;
+    const volDimensions = fileVolume.dimensions;
 
-    elements.FILE.VOLUME.SLAB = Math.sqrt(
-        elements.FILE.VOLUME.DIMENSIONS[0] * elements.FILE.VOLUME.DIMENSIONS[0] +
-        elements.FILE.VOLUME.DIMENSIONS[1] * elements.FILE.VOLUME.DIMENSIONS[1] +
-        elements.FILE.VOLUME.DIMENSIONS[2] * elements.FILE.VOLUME.DIMENSIONS[2]
+    const volSlab = Math.sqrt(
+        volDimensions[0] * volDimensions[0] +
+        volDimensions[1] * volDimensions[1] +
+        volDimensions[2] * volDimensions[2]
     );
 
     // Add volumes to MIP viewports
     await cornerstone.setVolumesForViewports(
-        elements.PAGE.RENDER.ENGINE,
+        renderingEngine,
         [
             //https://www.cornerstonejs.org/api/core/namespace/Types#IVolumeInput
             {
-                volumeId: elements.FILE.VOLUME.ID,
+                volumeId: fileVolumeId,
                 blendMode: cornerstone.Enums.BlendModes.MAXIMUM_INTENSITY_BLEND,
-                slabThickness: elements.FILE.VOLUME.SLAB,
+                slabThickness: volSlab,
             },
         ],
-        [elements.MIP.AXIAL.ID, elements.MIP.SAGITTAL.ID, elements.MIP.CORONAL.ID]
+        ['mip_axial', 'mip_sagittal', 'mip_coronal']
     );
 
     // Add volumes to 3D viewports
-    const viewport = elements.PAGE.RENDER.ENGINE.getViewport(elements.T3D.CORONAL.ID);
+    const viewport = renderingEngine.getViewport('t3d_coronal');
     await cornerstone.setVolumesForViewports(
-        elements.PAGE.RENDER.ENGINE,
+        renderingEngine,
         [
             //https://www.cornerstonejs.org/api/core/namespace/Types#IVolumeInput
             {
-                volumeId: elements.FILE.VOLUME.ID
+                volumeId: fileVolumeId
             },
         ],
-        [elements.T3D.CORONAL.ID]
+        ['t3d_coronal']
     ).then(() => {
         viewport.setProperties({
             preset: 'MR-Default',
@@ -930,7 +880,7 @@ async function run() {
     //const seg_path = getNiftiSeg()
     //addOverlay(seg_path);
 
-    elements.PAGE.RENDER.ENGINE.render();
+    renderingEngine.render();
 }
 
 run();
