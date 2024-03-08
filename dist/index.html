@@ -1,29 +1,123 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-	<link rel="stylesheet" href="style.css" />
-    <style type="text/css">
-        div {
-		margin: 5px;
-	}
+    <title>NIfTI Visual Review</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="top-panel">
+            <div id="nav_panel" class="button-panel">
+                <button id="goBack" onclick="window.goBack();">Go Back</button>
+                <button id="skipForward" onclick="window.skipForward();">Skip Forward</button>
+            </div>
+            <div id="view_panel" class="button-panel">
+                <button id="viewVolume">View Volumes</button>
+                <button id="viewProjections">View Projections</button>
+                <button id="view3D">View 3D Render</button>
+            </div>
+        </div>
+        <div class="middle-panel">
+            <div class="middle-left-panel">
+                <div id="file_panel">
+                    <div id="table_header">
+                        <div class="header_cell">File List</div>
+                        <!--<div class="header_cell">File Path</div>-->
+                    </div>
+                    <div id="file_content">File Content</div>
+                </div>
+                <div id="tool_panel">
+                    <div id="table_header">
+                        <div class="header_cell">Tool List</div>
+                    </div>
+                    <div id="vol_tools"></div>
+                    <div id="mip_tools"></div>
+                    <div id="t3d_tools"></div>
+                </div>
+            </div>
+            <div class="middle-right-panel">
+                <div id="vol_content"></div>
+                <div id="mip_content"></div>
+                <div id="t3d_content"></div>
+                <div id="mark_panel" class="button-panel">
+                    <button id="markGood" onclick="window.markGood();">Good</button>
+                    <button id="markBad" onclick="window.markBad();">Bad</button>
+                    <button id="markBlank" onclick="window.markBlank();">Blank</button>
+                    <button id="markScout" onclick="window.markScout();">Scout</button>
+                    <button id="markOther" onclick="window.markOther();">Other</button>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-panel">
+            <div id="info_panel">
+                <h2>Information Panel</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus augue erat, faucibus et mi sit amet, cursus dignissim diam. Pellentesque lobortis bibendum nisl, sit amet porttitor nibh placerat ac. Sed molestie imperdiet condimentum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent interdum at nunc sed placerat. Fusce dapibus commodo lectus vitae pulvinar. Nam eget faucibus neque. Mauris eget elit mattis, rutrum sem vel, cursus risus. Vestibulum rhoncus, nibh at fermentum porttitor, odio turpis tristique elit, eget semper massa neque nec ante. Nunc a orci a metus fermentum consectetur. Nulla sit amet faucibus tellus. Nunc sed viverra massa. Quisque at est mauris. Nunc dignissim non mi ac feugiat. Suspendisse iaculis justo sit amet tellus rhoncus sagittis.
+                </p>
+                <p>
+                    In convallis bibendum tellus non gravida. Nulla sit amet ex bibendum, porta urna id, porttitor metus. Etiam lobortis in odio quis porta. Fusce imperdiet nunc at sem molestie, quis accumsan erat laoreet. Etiam viverra leo vel odio sollicitudin, et pharetra massa lobortis. Cras sed lacus ullamcorper orci consectetur tempus et et leo. Phasellus viverra in lorem vel fringilla. Nullam porta eleifend sem eget auctor. Duis et rutrum nisl, in tempus nulla. Praesent vulputate ut ligula et auctor. Curabitur congue egestas euismod. Vivamus et velit blandit, vehicula ex consequat, mattis lectus. Sed finibus non augue eu luctus. Morbi ac ultricies tellus, a efficitur lorem. Pellentesque tempor, odio vitae consectetur malesuada, elit orci commodo nibh, ac molestie lorem leo sed magna. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+                </p>
+                <p>
+                    Suspendisse mollis urna in metus ultricies, sed pellentesque risus ultrices. Nulla non dolor consectetur lorem lacinia tincidunt sit amet ut nisi. Mauris nec porttitor turpis, in congue arcu. Suspendisse quis dolor nunc. Donec vitae posuere sapien. Mauris ultrices fringilla turpis at commodo. Maecenas viverra purus ac vehicula rutrum. Nullam id libero eleifend, faucibus ligula in, elementum dolor. Donec vehicula iaculis est facilisis vestibulum. Sed blandit quis urna in laoreet.
+                </p>
+                <p>
+                    Aliquam finibus facilisis nulla. Morbi pharetra massa eget magna vulputate laoreet. Fusce leo justo, sodales eget tellus id, ornare facilisis nisi. Curabitur metus arcu, ultrices a neque a, bibendum tempus felis. Sed mattis congue nisl, in tempor eros facilisis sit amet. Vivamus hendrerit purus vel tellus fringilla consequat. In feugiat malesuada quam, sit amet elementum lacus tincidunt at.
+                </p>
+                <p>
+                    In magna ex, tincidunt quis elit in, iaculis vulputate justo. Vivamus rhoncus pellentesque odio, id ultrices ligula ultrices quis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus placerat fermentum ipsum eu elementum. Suspendisse ipsum justo, tristique at pharetra sit amet, rhoncus a sem. Duis et tincidunt augue. Pellentesque quis ex ac dolor vestibulum mollis at at nunc. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam in sem tincidunt, vulputate leo semper, sagittis lorem.
+                </p>
+            </div>
+        </div>
+    </div>
 
-    </style>
-  </head>
-  <body>
-	<div id="demo-toolbar"></div>
-    <div id="content"></div>
+<!--<script type="module" src="/main.js"></script>-->
+<script type="module" src="/nifti.js"></script>
+<!--<script type="module" src="/dicom.ts"></script>-->
+<!--<button id="dostuff" onclick="window.doStuff();">Change LUT</button>-->
+<!--<button id="dostuff2" onclick="window.qtest();">Test Button</button>-->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hide all panels initially
+        document.getElementById('vol_content').style.display = 'flex';
+        document.getElementById('vol_tools').style.display = 'flex';
+        document.getElementById('mip_content').style.display = 'none';
+        document.getElementById('mip_tools').style.display = 'none';
+        document.getElementById('t3d_content').style.display = 'none';
+        document.getElementById('t3d_tools').style.display = 'none';
 
+        // Toggle visibility for the vol_panel
+        document.getElementById('viewVolume').addEventListener('click', function () {
+            document.getElementById('vol_content').style.display = 'flex';
+            document.getElementById('vol_tools').style.display = 'flex';
+            document.getElementById('mip_content').style.display = 'none';
+            document.getElementById('mip_tools').style.display = 'none';
+            document.getElementById('t3d_content').style.display = 'none';
+            document.getElementById('t3d_tools').style.display = 'none';
+        });
 
-    <script type="module" src="main.js"></script>
-    <!--<button id="dostuff" onclick="window.doStuff();">Change LUT</button>-->
-	<div id="buttonbar">
-		<button id="btnExpand" onclick="window.qtest();">Expand Seg</button>
-		<button id="btnRset" onclick="window.qreset();">Reset Seg</button>
-	</div>
-	<div id="output"></div>
-  </body>
+        // Toggle visibility for the mip_panel
+        document.getElementById('viewProjections').addEventListener('click', function () {
+            document.getElementById('vol_content').style.display = 'none';
+            document.getElementById('vol_tools').style.display = 'none';
+            document.getElementById('mip_content').style.display = 'flex';
+            document.getElementById('mip_tools').style.display = 'flex';
+            document.getElementById('t3d_content').style.display = 'none';
+            document.getElementById('t3d_tools').style.display = 'none';
+        });
+
+        // Toggle visibility for the 3d_panel
+        document.getElementById('view3D').addEventListener('click', function () {
+            document.getElementById('vol_content').style.display = 'none';
+            document.getElementById('vol_tools').style.display = 'none';
+            document.getElementById('mip_content').style.display = 'none';
+            document.getElementById('mip_tools').style.display = 'none';
+            document.getElementById('t3d_content').style.display = 'flex';
+            document.getElementById('t3d_tools').style.display = 'flex';
+        });
+    });
+</script>
+</body>
 </html>

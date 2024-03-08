@@ -16,6 +16,8 @@
   "dependencies": {
     "@cornerstonejs/core": "^1.51.0",
     "@cornerstonejs/dicom-image-loader": "^1.51.0",
+    "@cornerstonejs/nifti-image-loader": "^1.0.9",
+    "@cornerstonejs/nifti-volume-loader": "^1.65.0",
     "@cornerstonejs/streaming-image-volume-loader": "^1.51.0",
     "@cornerstonejs/tools": "^1.51.0",
     "dcmjs": "^0.30.1",

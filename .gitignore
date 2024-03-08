@@ -26,3 +26,7 @@ dist-ssr
 dicom
 dicom2
 dicom3
+nifti
+obj
+*.esproj
+*.esproj.user
