@@ -114,3 +114,17 @@ export function expandSegTo3D(segmentationId) {
         z: { min: zmin, max: zmax },
 	};
 }
+
+
+/**
+ * A generic distance calucaltion between two (3D) points
+ */
+export function calculateDistance(point1, point2) {
+	const dx = point2[0] - point1[0];
+	const dy = point2[1] - point1[1];
+	const dz = point2[2] - point1[2];
+
+	const distance = Math.sqrt(dx ** 2 + dy ** 2 + dz ** 2);
+
+	return distance;
+}

@@ -5,6 +5,7 @@ import {
     initVolumeLoader,
     initCornerstoneDICOMImageLoader,
     expandSegTo3D,
+    calculateDistance,
 } from './utilities.js';
 
 const { volumeLoader, utilities } = cornerstone;
@@ -277,16 +278,6 @@ async function runFunction() {
 
         console.log("Center point of the top face:", centerPoint);
 
-        function calculateDistance(point1, point2) {
-            const dx = point2[0] - point1[0];
-            const dy = point2[1] - point1[1];
-            const dz = point2[2] - point1[2];
-
-            const distance = Math.sqrt(dx ** 2 + dy ** 2 + dz ** 2);
-
-            return distance;
-        }
-
         let radius = calculateDistance(topFaceCorners[0], centerPoint);
         const height = coords.z.max - coords.z.min;
 
@@ -394,7 +385,13 @@ async function runFunction() {
 function getSeriesFromURL() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    return urlParams.get('series');
+    const series = urlParams.get('series');
+
+    // A simple default series (may not actually load)
+    if (series === null) {
+        return '1.3.6.1.4.1.14519.5.2.1.7777.3470.161535129288433886024702756456';
+    }
+    return series;
 }
 
 /**
