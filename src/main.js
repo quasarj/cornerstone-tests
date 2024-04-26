@@ -73,6 +73,9 @@ async function runFunction() {
         volumeId, 
         { imageIds }
     );
+    const volumeDims = volume.dimensions;
+    const volumeSpacing = volume.spacing;
+    // console.log(volumeDims, volumeSpacing);
 
     // setup viewports  {{{
     const viewportId1 = 'CT_CORONAL';
@@ -251,6 +254,9 @@ async function runFunction() {
     // Render the image to the 2d viewports. The 3d was called earlier
     renderingEngine.renderViewports([viewportId1, viewportId2]);
 
+    window.cornerstone = cornerstone;
+    window.csTools = csTools;
+
     window.qdims = function() {
         // Extracting the coordinates of the corners of the top face
         const topLeft = [coords.x.min, coords.y.min, coords.z.max];
@@ -281,8 +287,24 @@ async function runFunction() {
             return distance;
         }
 
-        const radius = calculateDistance(topFaceCorners[0], centerPoint);
+        let radius = calculateDistance(topFaceCorners[0], centerPoint);
         const height = coords.z.max - coords.z.min;
+
+        // experimental adjustment of coordinates for masker
+        const [ dimX, dimY, dimZ ] = volumeDims;
+        const [ spaceX, spaceY, spaceZ ] = volumeSpacing;
+        console.log("spacings:");
+        console.log(spaceX, spaceY, spaceZ);
+        console.log(centerPoint);
+        let [x, y, z] = centerPoint;
+        let x2 = x * spaceX;
+        let y2 = dimY - (y * spaceY);
+        let z2 = z * spaceZ;
+        radius = (radius * spaceX) * 1.2;
+
+        const i = (z - height) * spaceZ;
+
+        const centerPointFix = [x2, y2, z2];
 
         // output info
         document.getElementById("output").innerHTML = `
@@ -310,7 +332,7 @@ async function runFunction() {
         <table>
         <tr>
             <td>center</td>
-            <td>${centerPoint}</td>
+            <td>${centerPointFix}</td>
         </tr>
         <tr>
             <td>radius</td>
@@ -318,7 +340,7 @@ async function runFunction() {
         </tr>
         <tr>
             <td>height</td>
-            <td>${height}</td>
+            <td>${i}</td>
         </tr>
         </table>
 
