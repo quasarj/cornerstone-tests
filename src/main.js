@@ -20,6 +20,7 @@ async function runFunction() {
 
     const series_instance_uid = getSeriesFromURL();
     const imageIds = await getFilesForSeries(series_instance_uid);
+    document.getElementById("series").innerHTML = series_instance_uid;
 
 /****************************************************************************
  *  BEGIN HTML modifying code - can this be moved to index.html?{{{
@@ -278,24 +279,48 @@ async function runFunction() {
 
         console.log("Center point of the top face:", centerPoint);
 
-        let radius = calculateDistance(topFaceCorners[0], centerPoint);
+        const radius = calculateDistance(topFaceCorners[0], centerPoint);
         const height = coords.z.max - coords.z.min;
 
         // experimental adjustment of coordinates for masker
+        function invert(val, maxval) {
+            return maxval - val
+        }
+        /*
+         * Convert a point in LPS to RAS.
+         * This just inverts the first two points (which is why it needs
+         * the dims). This is only useful if the input is actually in LPS!
+         */
+        function convertLPStoRAS(point, dims) {
+            const [ dimX, dimY, dimZ ] = dims;
+            let [x, y, z] = point;
+            x = invert(x, dimX);
+            y = invert(y, dimY);
+
+            return [ x, y, z];
+        }
+        function scaleBySpacing(point, spacings) {
+            const [ spaceX, spaceY, spaceZ ] = spacings;
+            let [x, y, z] = point;
+
+            return [ x * spaceX, y * spaceY, z * spaceZ ];
+        }
+
         const [ dimX, dimY, dimZ ] = volumeDims;
         const [ spaceX, spaceY, spaceZ ] = volumeSpacing;
-        console.log("spacings:");
-        console.log(spaceX, spaceY, spaceZ);
-        console.log(centerPoint);
-        let [x, y, z] = centerPoint;
-        let x2 = x * spaceX;
-        let y2 = dimY - (y * spaceY);
-        let z2 = z * spaceZ;
-        radius = (radius * spaceX) * 1.2;
 
-        const i = (z - height) * spaceZ;
+        // let [x, y, z] = centerPoint;
+        // let x2 = invert(x, dimX) * spaceX;
+        // let y2 = invert(y, dimY) * spaceY;
+        // let z2 = z * spaceZ;
 
-        const centerPointFix = [x2, y2, z2];
+        let centerPointRAS = convertLPStoRAS(centerPoint, volumeDims);
+        let centerPointFix = scaleBySpacing(centerPointRAS, volumeSpacing);
+
+        const diameter = (radius * spaceX) * 2;
+        const i = (centerPointRAS[2] - height) * spaceZ;
+
+        // end experimental ----------------------------------------
 
         // output info
         document.getElementById("output").innerHTML = `
@@ -322,16 +347,24 @@ async function runFunction() {
         <h3>Masker input</h3>
         <table>
         <tr>
-            <td>center</td>
-            <td>${centerPointFix}</td>
+            <td>LR</td>
+            <td>${centerPointFix[0]}</td>
         </tr>
         <tr>
-            <td>radius</td>
-            <td>${radius}</td>
+            <td>PA</td>
+            <td>${centerPointFix[1]}</td>
         </tr>
         <tr>
-            <td>height</td>
+            <td>S</td>
+            <td>${centerPointFix[2]}</td>
+        </tr>
+        <tr>
+            <td>I</td>
             <td>${i}</td>
+        </tr>
+        <tr>
+            <td>diameter</td>
+            <td>${diameter}</td>
         </tr>
         </table>
 
