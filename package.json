@@ -7,7 +7,17 @@
     "start": "webpack serve --open"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-react": "^7.24.1",
+    "autoprefixer": "^10.4.19",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^7.1.1",
     "html-webpack-plugin": "^5.6.0",
+    "postcss": "^8.4.38",
+    "postcss-loader": "^8.1.1",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^3.4.3",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.2"
@@ -19,6 +29,8 @@
     "@cornerstonejs/tools": "^1.51.0",
     "dcmjs": "^0.30.1",
     "dicom-parser": "^1.8.21",
-    "dicomweb-client": "^0.10.4"
+    "dicomweb-client": "^0.10.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

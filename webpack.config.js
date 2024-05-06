@@ -3,7 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: './src/main.js',
+  // ./src/index.js
+  // entry: './src/main.js',
+  entry: './src/main.jsx',
   devtool: 'inline-source-map',
   devServer: {
     static: ['dist', 'public'],
@@ -34,8 +36,25 @@ module.exports = {
     // syncWebAssembly: true,
   },
   module: {
-    rules: [{ test: /\.wasm/, type: 'asset/resource' }]
+    rules: [
+		{ test: /\.wasm/, type: 'asset/resource' },
+		{
+			test: /\.(js|jsx)$/,
+			exclude: /node_modules/,
+			use: {
+			loader: 'babel-loader'
+			}
+		},
+		{
+			test: /\.css$/,
+			use: ['style-loader', 'css-loader', 'postcss-loader']
+		}
+	]
   },
+  resolve: {
+    extensions: ['*', '.js', '.jsx'],
+  },
+
   // optimization: {
   //   runtimeChunk: 'single',
   // },
