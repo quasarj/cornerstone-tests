@@ -153,7 +153,7 @@ export function getSeriesFromURL() {
 
     // A simple default series (may not actually load)
     if (series === null) {
-        return '1.3.6.1.4.1.14519.5.2.1.7777.3470.161535129288433886024702756456';
+        return '1.3.6.1.4.1.14519.5.2.1.7777.3470.161535129288433886024702756456:6687';
     }
     return series;
 }
