@@ -6,13 +6,15 @@ import {
     initCornerstoneDICOMImageLoader,
     expandSegTo3D,
     calculateDistance,
+    getSeriesFromURL,
+    getFilesForSeries,
 } from './utilities.js';
 
 const { volumeLoader, utilities } = cornerstone;
 
 let coords; // the coordinates of the 3d segmentation
 
-async function runFunction() {
+export async function runFunction() {
     await cornerstone.init();
     initCornerstoneDICOMImageLoader();
     initVolumeLoader();
@@ -266,6 +268,10 @@ async function runFunction() {
         const bottomLeft = [coords.x.min, coords.y.max, coords.z.max];
         const bottomRight = [coords.x.max, coords.y.max, coords.z.max];
 
+        // Top face coordinates for black boxing
+        const bbTopLeft = [coords.x.min, coords.y.min];
+        const bbBottomRight = [coords.x.max, coords.y.max];
+
         const topFaceCorners = [topLeft, topRight, bottomLeft, bottomRight];
 
         console.log("Coordinates of the corners of the top face:", topFaceCorners);
@@ -303,7 +309,9 @@ async function runFunction() {
             const [ spaceX, spaceY, spaceZ ] = spacings;
             let [x, y, z] = point;
 
-            return [ x * spaceX, y * spaceY, z * spaceZ ];
+            return [ Math.floor(x * spaceX),
+                     Math.floor(y * spaceY),
+                     Math.floor(z * spaceZ) ];
         }
 
         const [ dimX, dimY, dimZ ] = volumeDims;
@@ -317,32 +325,17 @@ async function runFunction() {
         let centerPointRAS = convertLPStoRAS(centerPoint, volumeDims);
         let centerPointFix = scaleBySpacing(centerPointRAS, volumeSpacing);
 
-        const diameter = (radius * spaceX) * 2;
-        const i = (centerPointRAS[2] - height) * spaceZ;
+        const diameter = Math.floor((radius * spaceX) * 2);
+        const i = Math.floor((centerPointRAS[2] - height) * spaceZ);
 
         // end experimental ----------------------------------------
 
         // output info
         document.getElementById("output").innerHTML = `
         <h3>Redaction input (black box)</h3>
-        <table>
-        <tr>
-            <td>Top left</td>
-            <td>${topLeft}</td>
-        </tr>
-        <tr>
-            <td>Top right</td>
-            <td>${topRight}</td>
-        </tr>
-        <tr>
-            <td>Bottom Left</td>
-            <td>${bottomLeft}</td>
-        </tr>
-        <tr>
-            <td>Bottom Right</td>
-            <td>${bottomRight}</td>
-        </tr>
-        </table>
+        <pre>
+        {"box": [${bbTopLeft}, ${bbBottomRight}, "black"]}
+        </pre>
 
         <h3>Masker input</h3>
         <table>
@@ -367,6 +360,9 @@ async function runFunction() {
             <td>${diameter}</td>
         </tr>
         </table>
+        <pre>
+        masker -i src/${series_instance_uid} -o dst/ -c ${centerPointFix[0]} ${centerPointFix[1]} ${centerPointFix[2]} ${i} ${diameter}
+        </pre>
 
         `;
     }
@@ -410,36 +406,6 @@ async function runFunction() {
         ]);
 
     }
-}
-
-/**
- * Extract the series parameter from the URL in the browser
- */
-function getSeriesFromURL() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const series = urlParams.get('series');
-
-    // A simple default series (may not actually load)
-    if (series === null) {
-        return '1.3.6.1.4.1.14519.5.2.1.7777.3470.161535129288433886024702756456';
-    }
-    return series;
-}
-
-/**
- * Get a list of imageIds from Posda for a given series
- * TODO: Add parameter for activity_id or activity_timepoint_id
- */
-async function getFilesForSeries(series) {
-    const response = await fetch(`/papi/v1/series/${series}/files`);
-    const files = await response.json();
-
-    const newfiles = files.file_ids.map((file_id) => {
-        return "wadouri:/papi/v1/files/" + file_id + "/data";
-    });
-
-    return newfiles;
 }
 
 runFunction();

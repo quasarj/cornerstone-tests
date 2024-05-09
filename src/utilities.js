@@ -128,3 +128,32 @@ export function calculateDistance(point1, point2) {
 
 	return distance;
 }
+
+/**
+ * Get a list of imageIds from Posda for a given series
+ * TODO: Add parameter for activity_id or activity_timepoint_id
+ */
+export async function getFilesForSeries(series) {
+    const response = await fetch(`/papi/v1/series/${series}/files`);
+    const files = await response.json();
+
+    const newfiles = files.file_ids.map((file_id) => {
+        return "wadouri:/papi/v1/files/" + file_id + "/data";
+    });
+
+    return newfiles;
+}
+/**
+ * Extract the series parameter from the URL in the browser
+ */
+export function getSeriesFromURL() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const series = urlParams.get('series');
+
+    // A simple default series (may not actually load)
+    if (series === null) {
+        return '1.3.6.1.4.1.14519.5.2.1.7777.3470.161535129288433886024702756456';
+    }
+    return series;
+}
