@@ -1,64 +1,114 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: light only;
+    /*color: rgba(255, 255, 255, 0.87);*/
+    /*background-color: #242424;*/
 
-  color-scheme: light only;
-  /*color: rgba(255, 255, 255, 0.87);*/
-  /*background-color: #242424;*/
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
 }
-a:hover {
-  color: #535bf2;
-}
+
+    a:hover {
+        color: #535bf2;
+    }
 
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+    font-size: 3.2em;
+    line-height: 1.1;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  /*background-color: #1a1a1a;*/
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    /*background-color: #1a1a1a;*/
+    cursor: pointer;
+    transition: border-color 0.25s;
 }
 
+    button:hover {
+        border-color: #646cff;
+    }
+
+    button:focus,
+    button:focus-visible {
+        outline: 4px auto -webkit-focus-ring-color;
+    }
+
 @media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-/*  button {
+    :root {
+        color: #213547;
+        background-color: #ffffff;
+    }
+
+    a:hover {
+        color: #747bff;
+    }
+    /*  button {
     background-color: #f9f9f9;
   }*/
 }
+
+
+select, label {
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.5;
+    /*color: #213547;*/ /* Adjust based on light or dark theme */
+    /*padding: 5px;*/ /* Adjust padding as needed */
+    margin: 4px; /* Spacing around elements */
+    border-radius: 8px; /* Consistent with button border-radius */
+}
+
+.label-select-container {
+    display: flex;
+    align-items: center; /* Aligns items vertically in the center */
+}
+
+.label-slider-container {
+    display: flex;
+    align-items: center; /* Aligns items vertically in the center */
+}
+
+
+select {
+    border: 1px solid #ccc; /* Subtle border, adjust as needed */
+    background-color: #ffffff; /* Background, adjust for theme */
+}
+
+    select:focus {
+        border-color: #646cff; /* Focus state, similar to button:hover */
+        outline: none; /* Removes default focus outline */
+    }
+
+/* Adjust for dark mode as needed */
+@media (prefers-color-scheme: light) {
+    select, label {
+        color: #213547;
+        background-color: #ffffff;
+    }
+
+        select:hover {
+            border-color: #747bff; /* Similar hover effect as links */
+        }
+}
+
+
+
 
 
 
@@ -84,23 +134,139 @@ html, body {
     /*border: 2px solid #000000;*/
 }
 
-.button-panel button {
-    margin: 5px;
-}
+    .button-panel button {
+        margin: 5px;
+    }
+
+
+
 
 /* Top Panel */
 
-.top-panel {
-    display: flex;
+* {
+    box-sizing: border-box; /* Include padding and border in the element's width and height */
 }
+
+.top-panel, #search_panel {
+    width: 100%; /* Ensure full width */
+    margin: 0; /* Reset any default margin */
+    padding: 0; /* Reset any default padding */
+}
+
+#search_panel {
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Adjust this if necessary */
+}
+
+.form-group {
+    margin: 0 10px; /* Manage spacing between elements */
+    display: flex;
+    flex-direction: column;
+    width: auto; /* Adjust this to 'auto' or remove if using specific widths below */
+}
+
+/* Explicit widths for each form group */
+#type_group {
+    width: 100px;
+}
+#file_group {
+    width: 150px;
+}
+#series_group {
+    width: 600px;
+}
+#timepoint_group {
+    width: 130px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 38px;
+    width: 100%; /* Ensure inputs take up the full width of their container */
+}
+
+#searchButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 38px;
+    align-self: flex-end;
+    margin: 4px;
+    margin-left: 10px;
+}
+
+    #searchButton:hover {
+        background-color: #45a049;
+    }
+
+#clearButton {
+    background-color: #9e9e9e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 38px;
+    align-self: flex-end;
+    margin: 4px;
+    margin-left: 10px;
+}
+
+    #clearButton:hover {
+        background-color: #757575;
+    }
+
+.search-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .form-group {
+        margin: 0 5px;
+        width: auto; /* Adjust to smaller widths or full width on small screens */
+    }
+
+        .form-group input[type="text"],
+        .form-group select,
+        #searchButton {
+            padding: 6px;
+            height: 34px;
+        }
+
+/*    #searchButton {
+        padding: 8px 16px;
+    }*/
+}
+
+
+
+
+
+
+
+
+
+
+
 
 #nav_panel {
     justify-content: flex-start; /* Justify nav buttons to the left */
-    flex-grow: 1;
-}
-
-#view_panel {
-    justify-content: flex-end; /* Justify view buttons to the right */
     flex-grow: 1;
 }
 
@@ -136,25 +302,36 @@ html, body {
     white-space: nowrap; /* Prevent word wrapping in the container */
 }
 
-#file_content, #vol_tools, #mip_tools, #t3d_tools {
+#file_content {
     flex-grow: 1;
     overflow-y: auto;
 }
 
-#file_content li {
-    display: table-row;
-}
+    #file_content li {
+        display: table-row;
+    }
 
-#file_content li:before {
-    content: none;
-}
+        #file_content li:before {
+            content: none;
+        }
 
-#file_content li div {
-    display: table-cell;
-    padding: 5px;
-    border-bottom: 1px solid #ddd;
-}
+        #file_content li:hover {
+            cursor: pointer;
+        }
 
+        #file_content li div {
+            display: table-cell;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+
+#vol_tools, #mip_tools, #t3d_tools {
+    display: flex;
+    flex-direction: column; /* Aligns children vertically */
+    /*padding: 10px;*/
+    margin: 10px;
+}
 
 
 #table_header {
@@ -180,100 +357,46 @@ html, body {
     margin-right: 10px;
     /*overflow-y: auto;*/ /* For scrolling */
 }
+
 #mark_panel {
     flex-grow: 0;
 }
-
-
-
-/*#table_header, #file_panel {
-    flex: 1;*/ /* This makes table_header and file_panel share the upper half equally */
-    /*overflow-y: auto;*/ /* Enables vertical scrolling if the content overflows */
-/*}
-
-#file_panel {
-    display: table;*/
-    /*flex-grow: 1;*/ /* Split space evenly */
-    /*overflow-y: auto;*/ /* Add scroll bar if content overflows */
-    /*overflow-x: auto;*/ /* Add scroll bar if content overflows */
-    /*align-items: center;*/ /* Center the content vertically */
-    /*justify-content: center;*/ /* Center the content horizontally */
-    /*border: 2px solid #000000;*/
-    /*width: 100%;*/ /* Optional: Adjust width as needed */
-/*}
-
-#file_panel li {
-    display: table-row;*/ /* Each list item is a row in the table */
-/*}
-
-#file_panel li:before {
-    content: none;*/ /* Remove the bullet points from list items */
-/*}
-
-#file_panel li div {
-    display: table-cell;*/ /* Treat child divs of list items as table cells */
-    /*padding: 10px;*/ /* Adjust padding for spacing */
-    /*border-bottom: 1px solid #ddd;*/ /* Optional: add a border for each row */
-/*}
-
-#table_header {
-    display: table;
-    width: 100%;
-    background-color: #f2f2f2;*/ /* Light grey background or any color of your choice */
-    /*text-align: center;*/ /* Center the content vertically */
-    /*vertical-align: middle;*/ /* Center the content vertically */
-    /*justify-content: center;*/ /* Center the content horizontally */
-    /*height: 50px;
-}
-
-.header_cell {
-    display: table-cell;
-    padding: 5px;
-    font-weight: bold;*/ /* Make header text bold */
-    /*border-bottom: 2px solid #000;*/ /* Optional: Add a bottom border to the header */
-    /*border-top: 2px solid #000;*/ /* Optional: Add a bottom border to the header */
-/*}
-
-
-
-
-#vol_tools, #mip_tools, #t3d_tools {
-    display: block;*/
-    /*flex-grow: 1;*/ /* Split space evenly */
-    /*flex: 1;
-    overflow-y: auto;*/ /* Add scroll bar if content overflows */
-    /*align-items: center;*/ /* Center the content vertically */
-    /*justify-content: center;*/ /* Center the content horizontally */
-    /*border: 2px solid #000000;*/
-/*}*/
-
-
-
-/*#viz_panel {
-    flex-grow: 1;
-}*/
-
-/*#vol_content, #mip_content, #t3d_content {
-    flex-grow: 1;
-    margin-right: 10px;
-}
-
-#mark_panel {
-    flex-shrink: 0;
-}*/
-
 
 
 /* Bottom Panel */
 
 .bottom-panel {
     display: flex;
-    padding: 20px;
+}
+
+#view_panel {
+    justify-content: flex-end; /* Justify view buttons to the right */
+    flex-grow: 1;
+}
+
+#vol_content {
+}
+#vol_grid {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	height: 100%;
+}
+#vol_sagittal {
+	width: 100%;
+	height: 100%;
+}
+#vol_coronal {
+	width: 100%;
+	height: 100%;
+}
+#vol_3d {
+	width: 100%;
+	height: 100%;
 }
 
 /*#info_panel {*/
-    /*width: 100%;*/
-    /*margin: 20px;*/
-    /*margin-top: -10px;*/
+/*width: 100%;*/
+/*margin: 20px;*/
+/*margin-top: -10px;*/
 /*}*/
-

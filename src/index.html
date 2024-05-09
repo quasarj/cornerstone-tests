@@ -1,27 +1,40 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-	<link rel="stylesheet" href="style.css" />
-    <style type="text/css">
-		div {
-			margin: 5px;
-		}
-    </style>
-  </head>
-  <body>
-	<div id="demo-toolbar"></div>
-    <div id="content"></div>
-
-
-	<div id="series"></div>
-	<div id="buttonbar">
-		<button id="btnExpand">Expand Seg</button>
-		<button id="btnReset" onclick="window.qreset();">Reset Seg</button>
-	</div>
-	<div id="output"></div>
-  </body>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="middle-panel">
+            <!--<div class="middle-left-panel"> -->
+            <!--    <div id="file_panel"> -->
+            <!--        <div id="table_header"> -->
+            <!--            <div class="header_cell">File List</div> -->
+            <!--        </div> -->
+            <!--        <div id="file_content">File Content</div> -->
+            <!--    </div> -->
+            <!--    <div id="tool_panel"> -->
+            <!--        <div id="table_header"> -->
+            <!--            <div class="header_cell">Tool List</div> -->
+            <!--        </div> -->
+            <!--        <div id="vol_tools"></div> -->
+            <!--        <div id="mip_tools"></div> -->
+            <!--        <div id="t3d_tools"></div> -->
+            <!--    </div> -->
+            <!--</div> -->
+            <div class="middle-right-panel">
+                <div id="vol_content">
+				</div>
+            </div>
+        </div>
+        <div class="bottom-panel">
+            <div id="view_panel" class="button-panel">
+                <button id="btnExpand">Expand Selection</button>
+                <button id="btnReset">Submit for Masking</button>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

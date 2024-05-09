@@ -14,63 +14,48 @@ const { volumeLoader, utilities } = cornerstone;
 
 let coords; // the coordinates of the 3d segmentation
 
-export async function runFunction() {
+async function initThings() {
     await cornerstone.init();
     initCornerstoneDICOMImageLoader();
     initVolumeLoader();
     await csTools.init();
 
-    const series_instance_uid = getSeriesFromURL();
+    csTools.addTool(csTools.RectangleScissorsTool);
+    csTools.addTool(csTools.StackScrollMouseWheelTool);
+    csTools.addTool(csTools.PanTool);
+    csTools.addTool(csTools.ZoomTool);
+    csTools.addTool(csTools.TrackballRotateTool);
+    csTools.addTool(csTools.SegmentationDisplayTool);
+}
+
+export async function runFunction(series_instance_uid) {
+
     const imageIds = await getFilesForSeries(series_instance_uid);
-    document.getElementById("series").innerHTML = series_instance_uid;
+    // document.getElementById("series").innerHTML = series_instance_uid;
 
 /****************************************************************************
  *  BEGIN HTML modifying code - can this be moved to index.html?{{{
  ***************************************************************************/
-    const content = document.getElementById('content');
 
-    const viewportGrid = document.createElement('div');
-    viewportGrid.style.display = 'flex';
-    viewportGrid.style.flexDirection = 'row';
+    const element1 = document.getElementById('vol_sagittal');
+    const element2 = document.getElementById('vol_coronal');
+    const element3 = document.getElementById('vol_3d');
 
-    // element for axial view
-    const element1 = document.createElement('div');
-    element1.style.width = '500px';
-    element1.style.height = '500px';
-    // disable right-click on this element
     element1.oncontextmenu = (e) => e.preventDefault();
-
-    // element for sagittal view
-    const element2 = document.createElement('div');
-    element2.style.width = '500px';
-    element2.style.height = '500px';
-    // disable right-click on this element
     element2.oncontextmenu = (e) => e.preventDefault();
-
-    // element for 3d view
-    const element3 = document.createElement('div');
-    element3.style.width = '500px';
-    element3.style.height = '500px';
-    // disable right-click on this element
     element3.oncontextmenu = (e) => e.preventDefault();
-
-    viewportGrid.appendChild(element1);
-    viewportGrid.appendChild(element2);
-    viewportGrid.appendChild(element3);
-
-    content.appendChild(viewportGrid);
 
 /****************************************************************************
  *  END HTML modifying code
  ***************************************************************************///}}}
 
 
-    const renderingEngineId = 'myRenderingEngine';
+    const renderingEngineId = 'myRenderingEngine' + series_instance_uid;
     const renderingEngine = new cornerstone.RenderingEngine(renderingEngineId);
 
     // note "cornerstoneStreamingImageVolume: " is required to
     // use the streaming volume loader
-    const volumeId = 'cornerstoneStreamingImageVolume: myVolume';
+    const volumeId = 'cornerstoneStreamingImageVolume: myVolume' + series_instance_uid;
 
     // Define a volume in memory
     const volume = await volumeLoader.createAndCacheVolume(
@@ -118,14 +103,8 @@ export async function runFunction() {
     //}}}
 
     // setup toolgroups {{{
-    csTools.addTool(csTools.RectangleScissorsTool);
-    csTools.addTool(csTools.StackScrollMouseWheelTool);
-    csTools.addTool(csTools.PanTool);
-    csTools.addTool(csTools.ZoomTool);
-    csTools.addTool(csTools.TrackballRotateTool);
-    csTools.addTool(csTools.SegmentationDisplayTool);
 
-    const toolGroupId = 'myToolGroup';
+    const toolGroupId = 'myToolGroup' + series_instance_uid;
     const toolGroup = csTools.ToolGroupManager.createToolGroup(toolGroupId);
     toolGroup.addTool(csTools.StackScrollMouseWheelTool.toolName);
     toolGroup.addTool(csTools.RectangleScissorsTool.toolName);
@@ -165,7 +144,7 @@ export async function runFunction() {
     // second toolGroup, for the 3d view
     // -----------------------------------------------------------------------
 
-    const toolGroupId2 = 'my3dToolGroup';
+    const toolGroupId2 = 'my3dToolGroup' + series_instance_uid;
     const toolGroup2 = csTools.ToolGroupManager.createToolGroup(toolGroupId2);
 
     toolGroup2.addTool(csTools.TrackballRotateTool.toolName);
@@ -226,7 +205,7 @@ export async function runFunction() {
 //}}}
 
     // setup empty segmentation {{{
-    const newSegmentationId = 'newseg1';
+    const newSegmentationId = 'newseg1' + series_instance_uid;
 
     await volumeLoader.createAndCacheDerivedSegmentationVolume(volumeId, {
         volumeId: newSegmentationId,
@@ -330,56 +309,58 @@ export async function runFunction() {
 
         // end experimental ----------------------------------------
 
-        // output info
-        document.getElementById("output").innerHTML = `
-        <h3>Redaction input (black box)</h3>
-        <pre>
-        {"box": [${bbTopLeft}, ${bbBottomRight}, "black"]}
-        </pre>
+        // // output info
+        // document.getElementById("output").innerHTML = `
+        // <h3>Redaction input (black box)</h3>
+        // <pre>
+        // {"box": [${bbTopLeft}, ${bbBottomRight}, "black"]}
+        // </pre>
 
-        <h3>Masker input</h3>
-        <table>
-        <tr>
-            <td>LR</td>
-            <td>${centerPointFix[0]}</td>
-        </tr>
-        <tr>
-            <td>PA</td>
-            <td>${centerPointFix[1]}</td>
-        </tr>
-        <tr>
-            <td>S</td>
-            <td>${centerPointFix[2]}</td>
-        </tr>
-        <tr>
-            <td>I</td>
-            <td>${i}</td>
-        </tr>
-        <tr>
-            <td>diameter</td>
-            <td>${diameter}</td>
-        </tr>
-        </table>
-        <pre>
-        masker -i src/${series_instance_uid} -o dst/ -c ${centerPointFix[0]} ${centerPointFix[1]} ${centerPointFix[2]} ${i} ${diameter}
-        </pre>
+        // <h3>Masker input</h3>
+        // <table>
+        // <tr>
+        //     <td>LR</td>
+        //     <td>${centerPointFix[0]}</td>
+        // </tr>
+        // <tr>
+        //     <td>PA</td>
+        //     <td>${centerPointFix[1]}</td>
+        // </tr>
+        // <tr>
+        //     <td>S</td>
+        //     <td>${centerPointFix[2]}</td>
+        // </tr>
+        // <tr>
+        //     <td>I</td>
+        //     <td>${i}</td>
+        // </tr>
+        // <tr>
+        //     <td>diameter</td>
+        //     <td>${diameter}</td>
+        // </tr>
+        // </table>
+        // <pre>
+        // masker -i src/${series_instance_uid} -o dst/ -c ${centerPointFix[0]} ${centerPointFix[1]} ${centerPointFix[2]} ${i} ${diameter}
+        // </pre>
 
-        `;
+        // `;
     }
 
     /**
      * Reset the segmentation data
      */
-    document.getElementById('btnReset').onclick = async function() {
-        const segmentationVolume = cornerstone.cache.getVolume(newSegmentationId);
-        const scalarData = segmentationVolume.scalarData;
-        scalarData.fill(0); // set entire array to 0s
+    // document.getElementById('btnReset').onclick = async function() {
 
-        // Let the system know the seg data has been modified
-        csTools.segmentation
-            .triggerSegmentationEvents
-            .triggerSegmentationDataModified(newSegmentationId);
-    }
+    //     document.getElementById('vol_grid').remove();
+    //     // const segmentationVolume = cornerstone.cache.getVolume(newSegmentationId);
+    //     // const scalarData = segmentationVolume.scalarData;
+    //     // scalarData.fill(0); // set entire array to 0s
+
+    //     // // Let the system know the seg data has been modified
+    //     // csTools.segmentation
+    //     //     .triggerSegmentationEvents
+    //     //     .triggerSegmentationDataModified(newSegmentationId);
+    // }
 
     document.getElementById('btnExpand').onclick = async function() {
         coords = expandSegTo3D(newSegmentationId);
@@ -408,6 +389,65 @@ export async function runFunction() {
     }
 }
 
-runFunction();
+function setupGrid() {
+    // document.getElementById('vol_content').innerHTML = '';
+    let cont = document.getElementById('vol_content');
+    cont.innerHTML = '';
+
+    const volGrid = document.createElement('div')
+    volGrid.id = 'vol_grid';
+    console.log("created vol_grid", volGrid);
+
+    const volSagittalContent = document.createElement('div')
+    volSagittalContent.id = 'vol_sagittal';
+    console.log("created vol_sagittal", volSagittalContent);
+
+    const volCoronalContent = document.createElement('div')
+    volCoronalContent.id = 'vol_coronal';
+    console.log("created vol_coronal", volCoronalContent);
+
+    const vol3DContent = document.createElement('div')
+    vol3DContent.id = 'vol_3d';
+    console.log("created vol_3d", vol3DContent);
+
+    cont.appendChild(volGrid);
+    console.log("appended volGrid to vol_content");
+
+
+    volGrid.appendChild(volSagittalContent);
+    volGrid.appendChild(volCoronalContent);
+    volGrid.appendChild(vol3DContent);
+    console.log("appended the contents to the grid");
+}
+
+async function demo() {
+    // add the display divs
+
+
+    // reset the grid when clicked
+    document.getElementById('btnReset').onclick = async function() {
+        console.log("someone clicked that reset button!");
+        document.getElementById('vol_grid').remove();
+        let cont = document.getElementById('vol_content');
+        cont.innerHTML = "<center><h2>Masking, please wait....</h2><img src='./spinner.gif'/></center>";
+        
+        document.getElementById('view_panel').style.visibility = "hidden";
+        
+        setTimeout(() => {
+            console.log("calling setupGrid again");
+            setupGrid();
+            runFunction('1.3.6.1.4.1.14519.5.2.1.7777.3470.161535129288433886024702756456:6773').then();
+        }, 3000);
+
+
+    }
+
+    setupGrid();
+
+    await runFunction(getSeriesFromURL());
+}
+
+await initThings();
+demo();
 
 // vim: ts=4 sw=4 expandtab foldmethod=marker
